@@ -1,5 +1,8 @@
+import 'package:aiims_heartcare/pages/LoginPage.dart';
 import 'package:aiims_heartcare/pages/Preboarding.dart';
-import 'package:aiims_heartcare/pages/HomePage.dart'; // Import your HomePage
+import 'package:aiims_heartcare/pages/HomePage.dart';
+import 'package:aiims_heartcare/utils/log.dart';
+import 'package:aiims_heartcare/utils/user_sessions.dart'; 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -22,12 +25,32 @@ class _SplashScreenState extends State<SplashScreen>
     _initializeAnimation();
   }
 
+  // Future<void> _checkLoginStatus() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     _isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  //   });
+  // }
   Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    });
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  final token = UserSession.userToken;
+  Log.v("isLoggedIn: $isLoggedIn, token: $token");
+
+  await Future.delayed(Duration(seconds: 1));
+
+  if (isLoggedIn && token != null && token.isNotEmpty) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HeartCareDashboard()),
+    );
+  } else {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
   }
+}
 
   void _initializeAnimation() {
     _controller = AnimationController(
@@ -48,11 +71,12 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToNextScreen() {
+    print('chekkkkkkk${ _isLoggedIn}');
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         transitionDuration: Duration(milliseconds: 800),
         pageBuilder: (context, animation, secondaryAnimation) =>
-            _isLoggedIn ? HomePage() : PreboardingScreen(),
+            _isLoggedIn ? Scaffold(body:  HomePage()) : PreboardingScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var curve = Curves.easeInOut.transform(animation.value);
           return Opacity(

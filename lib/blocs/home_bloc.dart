@@ -2,6 +2,7 @@
 
 import 'package:aiims_heartcare/data/api/api_service.dart';
 import 'package:aiims_heartcare/data/model/AttemptSaveResponse.dart';
+import 'package:aiims_heartcare/data/model/DailyLogSaveResponse.dart';
 import 'package:aiims_heartcare/data/model/DailyLogsResp.dart';
 import 'package:aiims_heartcare/data/model/LabReportResp.dart';
 import 'package:aiims_heartcare/data/model/LearningContent.dart';
@@ -293,7 +294,7 @@ class LogSaveState extends HomeState {
   ApiStatus state;
 
   ApiStatus get apiState => state;
-  DailyLogResp? response;
+  DailyLogSaveResponse? response;
   String? error;
 
   LogSaveState(this.state, {this.response, this.error});
@@ -320,7 +321,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         final response = await homeRepository.login(request: event.request!);
         if (response.token != null) {
           emit(LoginState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           Log.v("ERROR DATA ::: $response");
           emit(LoginState(ApiStatus.ERROR, error: 'Something went wrong'));
         }
@@ -338,7 +340,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
         if (response.status == true) {
           emit(AttemptSaveState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           Log.v("ERROR DATA ::: $response");
           emit(
             AttemptSaveState(ApiStatus.ERROR, error: 'Something went wrong'),
@@ -359,7 +362,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(LearningState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No learning content available';
@@ -389,7 +393,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(AttemptCreateState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No learning content available';
@@ -419,7 +424,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(QuestionState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No learning content available';
@@ -449,7 +455,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(LabReportState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No learning content available';
@@ -481,7 +488,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(LearningContentState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           final errorMessage =
               response.message ?? 'No LearningContent content available';
           Log.v("API returned false status: $errorMessage");
@@ -513,7 +521,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(ZoneSaveState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           final errorMessage =
               response.message ?? 'No ZoneSave content available';
           Log.v("API returned false status: $errorMessage");
@@ -542,7 +551,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(ReminderState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No Reminder content available';
@@ -572,7 +582,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(AttemptState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No Attempt content available';
@@ -603,7 +614,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         if (response.id != null) {
           emit(ProfileState(ApiStatus.SUCCESS, response: response));
           Log.v("Profile Success Response: ${response.toJson()}");
-        } else {
+        } 
+        else {
           emit(
             ProfileState(ApiStatus.ERROR, error: 'No profile data available'),
           );
@@ -631,7 +643,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(WeightSaveState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No WeightList content available';
@@ -661,7 +674,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(LogSaveState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No WeightList content available';
@@ -691,7 +705,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(WeightListState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No WeightList content available';
@@ -721,7 +736,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (response.status == true) {
           emit(MedicineState(ApiStatus.SUCCESS, response: response));
-        } else {
+        } 
+        else {
           // Use the server's message if available, otherwise fallback
           final errorMessage =
               response.message ?? 'No Medicine content available';

@@ -42,11 +42,14 @@ class User {
   String? monthlyIncome;
   String? age;
   Smoking? smoking;
+  String? daily_liquid_intake_limit;
+  String? liquidIntakeLimitMeasurement;
   AlcoholConsumption? alcoholConsumption;
   ClinicalProfiles? clinicalProfiles;
   ClinicalOutcomes? clinicalOutcomes;
   List<Weights>? weights;
   List<LabRecords>? labRecords;
+
 
   User(
       {this.id,
@@ -69,6 +72,8 @@ class User {
         this.monthlyIncome,
         this.age,
         this.smoking,
+        this.daily_liquid_intake_limit,
+        this.liquidIntakeLimitMeasurement,
         this.alcoholConsumption,
         this.clinicalProfiles,
         this.clinicalOutcomes,
@@ -97,6 +102,8 @@ class User {
     age = json['age'];
     smoking =
     json['smoking'] != null ? new Smoking.fromJson(json['smoking']) : null;
+    daily_liquid_intake_limit = json['daily_liquid_intake_limit'];
+    liquidIntakeLimitMeasurement = json['liquid_intake_limit_measurement'];
     alcoholConsumption = json['alcohol_consumption'] != null
         ? new AlcoholConsumption.fromJson(json['alcohol_consumption'])
         : null;
@@ -140,6 +147,8 @@ class User {
     data['dietary_pattern'] = this.dietaryPattern;
     data['economic_status'] = this.economicStatus;
     data['monthly_income'] = this.monthlyIncome;
+    data['daily_liquid_intake_limit'] = this.daily_liquid_intake_limit;
+    data['liquid_intake_limit_measurement'] = this.liquidIntakeLimitMeasurement;  
     data['age'] = this.age;
     if (this.smoking != null) {
       data['smoking'] = this.smoking!.toJson();

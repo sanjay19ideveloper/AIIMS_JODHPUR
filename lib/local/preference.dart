@@ -18,6 +18,11 @@ class Preference {
   static const PASSWORD = "PASSWORD";
   static const REMEMBER_ME = "REMEMBER_ME";
   static const isLoggedIn = 'isLoggedIn';
+  static const USER_PROFILE = "USER_PROFILE";
+  static const INTAKE_LIMIT = "daily_liquid_intake_limit";
+  static const INTAKE_LIMIT_MEASUREMENT = "liquid_intake_limit_measurement";
+  static const USER_PROFILE_IMAGE = "USER_PROFILE_IMAGE"; 
+
 
   // Singleton instance
   static final Preference _instance = Preference._internal();
@@ -127,5 +132,11 @@ class Preference {
   static Future<void> clear() async {
     await _prefs?.clear();
     _memoryPrefs.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.remove('userToken');
+    await prefs.remove('email');
+    await prefs.remove('userName');
+ 
   }
 }

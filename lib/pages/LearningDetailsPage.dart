@@ -1,13 +1,14 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:aiims_heartcare/data/model/LearningContent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart'; // Add this package for HTML rendering
+import 'package:flutter_html/flutter_html.dart';
 import 'package:aiims_heartcare/blocs/bloc_manager.dart';
 import 'package:aiims_heartcare/blocs/home_bloc.dart';
 import 'package:aiims_heartcare/data/api/api_service.dart';
 import 'package:aiims_heartcare/utils/log.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Add for image caching
+import 'package:cached_network_image/cached_network_image.dart';
 
 class LearningDetailsPage extends StatefulWidget {
   final String? slug;
@@ -53,12 +54,10 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
             iconTheme: const IconThemeData(color: Colors.white),
             elevation: 0,
           ),
-          body:
-              _isLoading
-                  ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF0D3B3F)),
-                  )
-                  : contentList.isEmpty
+          body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF0D3B3F)))
+              : contentList.isEmpty
                   ? _buildEmptyState()
                   : _buildContentList(),
         ),
@@ -127,19 +126,17 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                placeholder:
-                    (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                errorWidget:
-                    (context, url, error) => Container(
-                      height: 200,
-                      color: Colors.grey[200],
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        size: 50,
-                        color: Colors.grey,
-                      ),
-                    ),
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Container(
+                  height: 200,
+                  color: Colors.grey[200],
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    size: 50,
+                    color: Colors.grey,
+                  ),
+                ),
               ),
             ),
 
@@ -182,23 +179,23 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
                 const SizedBox(height: 16),
 
                 // Status and date info
-                Row(
-                  children: [
-                    _buildInfoChip(
-                      Icons.access_time,
-                      item.createdAt != null
-                          ? _formatDate(item.createdAt!)
-                          : 'Unknown date',
-                    ),
-                    const SizedBox(width: 12),
-                    _buildInfoChip(
-                      Icons.check_circle,
-                      item.status != null
-                          ? statusValues.reverse[item.status!] ?? 'Unknown'
-                          : 'Unknown',
-                    ),
-                  ],
-                ),
+                // Row(
+                //   children: [
+                //     _buildInfoChip(
+                //       Icons.access_time,
+                //       item.createdAt != null
+                //           ? _formatDate(item.createdAt!)
+                //           : 'Unknown date',
+                //     ),
+                //     const SizedBox(width: 12),
+                //     _buildInfoChip(
+                //       Icons.check_circle,
+                //       item.status != null
+                //           ? statusValues.reverse[item.status!] ?? 'Unknown'
+                //           : 'Unknown',
+                //     ),
+                //   ],
+                // ),
 
                 const SizedBox(height: 16),
                 const Divider(),
@@ -206,29 +203,7 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
 
                 // Content
                 if (item.content != null && item.content!.isNotEmpty)
-                  Html(
-                    data: item.content!,
-                    style: {
-                      "body": Style(
-                        fontSize: FontSize(16),
-                        lineHeight: LineHeight(1.6),
-                      ),
-                      "h1": Style(
-                        fontSize: FontSize(22),
-                        fontWeight: FontWeight.bold,
-                        // margin: EdgeInsets.all(8)
-                        margin: Margins.symmetric(vertical: 8),
-                      ),
-                      "h2": Style(
-                        fontSize: FontSize(20),
-                        fontWeight: FontWeight.bold,
-                        margin: Margins.only(bottom: 12, top: 8),
-                      ),
-                      "p": Style(margin: Margins.only(bottom: 16)),
-                      "ul": Style(margin: Margins.only(bottom: 16, left: 16)),
-                      "li": Style(margin: Margins.only(bottom: 8)),
-                    },
-                  )
+                  _buildFormattedContent(item.content!)
                 else
                   const Text(
                     'No content available',
@@ -239,8 +214,7 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
                   ),
 
                 // Video section if available
-                if (item.videoUrl != null &&
-                    item.videoUrl.toString().isNotEmpty)
+                if (item.videoUrl != null && item.videoUrl.toString().isNotEmpty)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -282,21 +256,78 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
                     ],
                   ),
 
-                // Action buttons
                 const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _buildActionButton(Icons.favorite_border, 'Like', () {}),
-                    const SizedBox(width: 16),
-                    _buildActionButton(Icons.download, 'Save', () {}),
-                  ],
-                ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFormattedContent(String content) {
+    // Split content by lines
+    List<String> lines = content.split('\n');
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: lines.map((line) {
+        if (line.trim().isEmpty) return const SizedBox(height: 8);
+        
+        // Check for numbered list items (lines starting with numbers)
+        if (RegExp(r'^\d+\.').hasMatch(line.trim())) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  line.substring(0, line.indexOf('.') + 1),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    line.substring(line.indexOf('.') + 1).trim(),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        // Check for sub-points (lines starting with ->)
+        else if (line.trim().startsWith('->')) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 24, bottom: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('• ', style: TextStyle(fontSize: 16)),
+                Expanded(
+                  child: Text(
+                    line.substring(2).trim(),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        // Regular text
+        else {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              line,
+              style: const TextStyle(fontSize: 16),
+            ),
+          );
+        }
+      }).toList(),
     );
   }
 
@@ -315,22 +346,6 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
           Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[800])),
         ],
       ),
-    );
-  }
-
-  Widget _buildActionButton(
-    IconData icon,
-    String label,
-    VoidCallback onPressed,
-  ) {
-    return TextButton.icon(
-      icon: Icon(icon, size: 18, color: const Color(0xFF0D3B3F)),
-      label: Text(label, style: const TextStyle(color: Color(0xFF0D3B3F))),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      onPressed: onPressed,
     );
   }
 

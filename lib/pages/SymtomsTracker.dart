@@ -960,6 +960,7 @@ class _SymptomsTrackerScreenState extends State<SymptomsTrackerScreen> {
         setState(() {
           attemptStatus = state.response?.attemptStatus;
           stepsTaken = state.response?.stepsTaken;
+          print('step to be taken ${stepsTaken}');
 
           // Immediately finish assessment if status is completed
           if (attemptStatus == 'completed') {

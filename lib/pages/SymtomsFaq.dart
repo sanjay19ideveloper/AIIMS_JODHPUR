@@ -1,4 +1,5 @@
 import 'package:aiims_heartcare/data/api/api_service.dart';
+import 'package:aiims_heartcare/data/model/ZoneSaveResp.dart';
 import 'package:aiims_heartcare/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +9,6 @@ import 'package:aiims_heartcare/data/model/QuestionListResp.dart';
 import 'package:aiims_heartcare/data/model/attemptModel.dart';
 import 'package:aiims_heartcare/utils/loading.dart';
 import 'package:intl/intl.dart';
-
 
 class ZoneFAQScreen extends StatefulWidget {
   const ZoneFAQScreen({Key? key}) : super(key: key);
@@ -21,10 +21,11 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
   String? selectedZone;
   bool _isLoading = false;
   QuestionListResponse? questionList;
+  ZoneSaveResponse? zoneSaveResponse;
   List<Datum> attemptList = [];
   bool showAttempts = false;
 
-  // Track expanded state for each accordion (Green expanded by default)
+  // Track expanded state for each accordion
   bool isGreenExpanded = true;
   bool isYellowExpanded = false;
   bool isRedExpanded = false;
@@ -60,7 +61,7 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
             iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: const Color(0xFF0D3B3F),
             title: Text(
-              AppLocalizations.of(context)!.translate('symptomsTracker', ),
+              AppLocalizations.of(context)!.translate('symptomsTracker'),
               style: const TextStyle(color: Colors.white),
             ),
             centerTitle: true,
@@ -104,7 +105,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Green Zone Accordion
                 if (questionList?.questions?.green?.isNotEmpty ?? false)
                   _buildAccordion(
                     title: AppLocalizations.of(context)!.translate('greenZoneFAQ'),
@@ -124,7 +124,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Yellow Zone Accordion
                 if (questionList?.questions?.yellow?.isNotEmpty ?? false)
                   _buildAccordion(
                     title: AppLocalizations.of(context)!.translate('yellowZoneFAQ'),
@@ -144,7 +143,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
                 
                 const SizedBox(height: 16),
                 
-                // Red Zone Accordion
                 if (questionList?.questions?.red?.isNotEmpty ?? false)
                   _buildAccordion(
                     title: AppLocalizations.of(context)!.translate('redZoneFAQ'),
@@ -166,7 +164,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
           ),
         ),
         
-        // Bottom buttons with heading
         Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
@@ -294,7 +291,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
       ),
       child: Column(
         children: [
-          // Accordion header
           InkWell(
             onTap: onTap,
             child: Container(
@@ -328,7 +324,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
             ),
           ),
           
-          // Accordion content
           if (isExpanded)
             Container(
               padding: const EdgeInsets.all(16),
@@ -348,18 +343,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        // ...(question.options ?? []).map((option) {
-                        //   return Padding(
-                        //     padding: const EdgeInsets.only(left: 8.0, top: 4),
-                        //     child: Text(
-                        //       '- ${option.option == OptionEnum.OPTION ? 'No' : 'Yes'}',
-                        //       style: TextStyle(
-                        //         color: Colors.black87,
-                        //         fontSize: 14,
-                        //       ),
-                        //     ),
-                        //   );
-                        // }).toList(),
                         if (question != questions.last) const Divider(height: 24),
                       ],
                     ),
@@ -380,7 +363,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
         setState(() {
           selectedZone = zoneName;
           
-          // Auto-expand the selected zone's accordion
           if (zoneName == AppLocalizations.of(context)!.translate('greenZone')) {
             isGreenExpanded = true;
             isYellowExpanded = false;
@@ -396,7 +378,6 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
           }
         });
         
-        // Show confirmation dialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.translate('confirmedZone', namedArgs: {'zoneName': zoneName})),
@@ -405,27 +386,7 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
           ),
         );
         
-        // Save the zone selection and show details
-        saveZoneSelection(zoneName).then((_) {
-          // Create a mock attempt with the selected zone
-          final newAttempt = Datum(
-            id: 'new-${DateTime.now().millisecondsSinceEpoch}',
-            zone: zoneName.split(' ').first.toLowerCase(),
-            status: 'completed',
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
-          
-          // Navigate to details page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AttemptDetailsScreen(
-                attempt: newAttempt,
-                stepsTaken: _getRecommendedSteps(zoneName),
-            ),
-           ) );
-        });
+        saveZoneSelection(zoneName);
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: isSelected ? color : Colors.white,
@@ -448,11 +409,9 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
   Future<void> saveZoneSelection(String zoneName) async {
     final zone = zoneName.split(' ').first.toLowerCase();
     BlocProvider.of<HomeBloc>(context).add(ZoneSaveEvent(zone: zone));
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate API call
   }
 
   List<String> _getRecommendedSteps(String zoneName) {
-    // These would normally come from your API
     if (zoneName == AppLocalizations.of(context)!.translate('greenZone')) {
       return [
         AppLocalizations.of(context)!.translate('continueMonitoring'),
@@ -480,7 +439,8 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
       MaterialPageRoute(
         builder: (context) => AttemptDetailsScreen(
           attempt: attempt,
-          stepsTaken: _getRecommendedSteps('${attempt.zone} ${AppLocalizations.of(context)!.translate('zone')}'),
+          stepsTaken: zoneSaveResponse?.stepsToBeTaken ?? 
+              _getRecommendedSteps('${attempt.zone} ${AppLocalizations.of(context)!.translate('zone')}'),
         ),
       ),
     );
@@ -524,7 +484,29 @@ class _ZoneFAQScreenState extends State<ZoneFAQScreen> {
       case ApiStatus.SUCCESS:
         setState(() {
           _isLoading = false;
+          zoneSaveResponse = state.response;
           fetchAttemptList();
+          
+          // Create a mock attempt with the selected zone
+          final newAttempt = Datum(
+            id: 'new-${DateTime.now().millisecondsSinceEpoch}',
+            zone: selectedZone?.split(' ').first.toLowerCase(),
+            status: 'completed',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+          
+          // Navigate to details page with dynamic steps
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AttemptDetailsScreen(
+                attempt: newAttempt,
+                stepsTaken: state.response?.stepsToBeTaken ?? 
+                    _getRecommendedSteps(selectedZone ?? AppLocalizations.of(context)!.translate('greenZone')),
+              ),
+            ),
+          );
         });
         break;
       case ApiStatus.ERROR:
@@ -685,7 +667,7 @@ class AttemptDetailsScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    )),
+                    )).toList(),
                   ],
                 ),
               ),
@@ -702,7 +684,6 @@ class AttemptDetailsScreen extends StatelessWidget {
               width: 200,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(

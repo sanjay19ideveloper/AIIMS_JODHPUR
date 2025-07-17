@@ -1,6 +1,7 @@
 import 'package:aiims_heartcare/blocs/bloc_manager.dart';
 import 'package:aiims_heartcare/blocs/home_bloc.dart';
 import 'package:aiims_heartcare/data/api/api_service.dart';
+import 'package:aiims_heartcare/l10n/app_localizations.dart';
 import 'package:aiims_heartcare/utils/loading.dart';
 import 'package:aiims_heartcare/utils/log.dart';
 import 'package:flutter/material.dart';
@@ -19,41 +20,32 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
   bool _isLoading = false;
   bool _isInitialLoad = true;
   List<dynamic> contentList = [];
-  double _maxDailyWaterIntakeMl = 2000.0; // Default value
-  int? _userAge;
-  bool _ageNotSet = false;
-  bool _showOnlyTop5 = true; // New variable to control list display
+  double _maxDailyWaterIntakeMl = 0.0; 
+  String? todayTotalIntake = '0';
+  bool _showOnlyTop5 = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkUserAge();
-    });
-  }
-
-  void _checkUserAge() {
-    // In a real app, you would fetch this from user profile or preferences
-    // For demo, we'll show the age dialog if not set
-    if (_userAge == null) {
-      _showAgeInputDialog(context);
-    } else {
       fetchDailyLogs();
-    }
+    });
   }
 
   double _calculateCurrentTotal() {
     double total = 0;
     DateTime now = DateTime.now();
-    
+
     for (var item in contentList) {
       try {
         DateTime itemDate = item.createdAt;
         if (itemDate.year == now.year &&
             itemDate.month == now.month &&
             itemDate.day == now.day) {
-          double amount = double.tryParse(
-                  item.howMuch.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ??
+          double amount =
+              double.tryParse(
+                item.howMuch.toString().replaceAll(RegExp(r'[^0-9.]'), ''),
+              ) ??
               0;
           total += amount;
         }
@@ -64,16 +56,18 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
     return total;
   }
 
-  void _showLimitExceededDialog(BuildContext context, double attemptedAmount, double currentTotal) {
-    double remaining = _maxDailyWaterIntakeMl - currentTotal;
+  void _showLimitExceededDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800),
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.orange.shade800,
+            ),
             SizedBox(width: 8),
-            Text('Limit Exceeded', style: TextStyle(color: Colors.orange.shade800)),
+            Text(AppLocalizations.of(context)!.translate('limit_exceeded')),
           ],
         ),
         content: Column(
@@ -81,22 +75,12 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'You cannot add ${attemptedAmount.toStringAsFixed(0)}ml as it would exceed your daily limit based on your age.',
+              AppLocalizations.of(context)!.translate('reached_daily_limit'),
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 16),
-            _buildInfoRow('Current intake', '${currentTotal.toStringAsFixed(0)} ml'),
-            _buildInfoRow('Daily limit', '${_maxDailyWaterIntakeMl.toStringAsFixed(0)} ml'),
-            _buildInfoRow('Remaining allowance', '${remaining > 0 ? remaining.toStringAsFixed(0) : 0} ml'),
-            SizedBox(height: 16),
             Text(
-              'Why is this important?',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange.shade800),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Drinking too much water can lead to water intoxication (hyponatremia), '
-              'which dilutes sodium in your blood and can be dangerous.',
+              AppLocalizations.of(context)!.translate('water_intoxication_warning'),
               style: TextStyle(fontSize: 14),
             ),
           ],
@@ -104,122 +88,13 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(AppLocalizations.of(context)!.translate('ok')),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(color: Colors.grey.shade700)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  void _showAgeInputDialog(BuildContext context, {bool isForAddingIntake = false}) {
-    final ageController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      barrierDismissible: !isForAddingIntake,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.person, color: Colors.blue),
-            SizedBox(width: 8),
-            Text('Enter Your Age'),
-          ],
-        ),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('We need your age to calculate your recommended daily water intake.'),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: ageController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Age',
-                  border: OutlineInputBorder(),
-                  suffixText: 'years',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your age';
-                  }
-                  final age = int.tryParse(value);
-                  if (age == null || age <= 0 || age > 120) {
-                    return 'Please enter a valid age (1-120)';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          if (!isForAddingIntake)
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _ageNotSet = true;
-                });
-                Navigator.pop(context);
-              },
-              child: Text('Skip'),
-            ),
-          TextButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                final age = int.parse(ageController.text);
-                setState(() {
-                  _userAge = age;
-                  _ageNotSet = false;
-                  // Calculate recommended water intake based on age
-                  _maxDailyWaterIntakeMl = _calculateRecommendedIntake(age);
-                });
-                Navigator.pop(context);
-                
-                if (isForAddingIntake) {
-                  // Show water intake dialog after age is set
-                  _showAddWaterIntakeDialog(context);
-                } else {
-                  fetchDailyLogs();
-                }
-              }
-            },
-            child: Text('Continue'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  double _calculateRecommendedIntake(int age) {
-    // Recommended water intake calculation based on age
-    if (age < 1) return 800.0; // Infants
-    if (age <= 3) return 1300.0; // Toddlers
-    if (age <= 8) return 1700.0; // Children
-    if (age <= 13) return 2400.0; // Pre-teens
-    if (age <= 18) return 3300.0; // Teens
-    if (age <= 30) return 3700.0; // Young adults
-    if (age <= 50) return 3500.0; // Middle-aged adults
-    if (age <= 70) return 3000.0; // Older adults
-    return 2800.0; // Seniors (70+)
-  }
-
-  // New method to show all water intake logs
   void _showAllWaterIntakeLogs(BuildContext context) {
     Navigator.push(
       context,
@@ -229,6 +104,149 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
           maxDailyWaterIntakeMl: _maxDailyWaterIntakeMl,
         ),
       ),
+    );
+  }
+
+  void _showAddWaterIntakeDialog(BuildContext context) {
+    final TextEditingController amountController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
+    double currentTotal = _calculateCurrentTotal();
+    bool willExceedLimit = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.water_drop, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text(AppLocalizations.of(context)!.translate('add_water_intake')),
+                ],
+              ),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.translate('amount_ml'),
+                        border: OutlineInputBorder(),
+                        suffixText: 'ml',
+                        prefixIcon: Icon(Icons.water_drop),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return AppLocalizations.of(context)!.translate('enter_amount');
+                        }
+                        final amount = double.tryParse(value);
+                        if (amount == null || amount <= 0) {
+                          return AppLocalizations.of(context)!.translate('enter_valid_amount');
+                        }
+                        if (currentTotal + amount > _maxDailyWaterIntakeMl) {
+                          return AppLocalizations.of(context)!.translate('exceeds_daily_limit');
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          final amount = double.tryParse(value) ?? 0;
+                          setState(() {
+                            willExceedLimit = currentTotal + amount > _maxDailyWaterIntakeMl;
+                          });
+                        } else {
+                          setState(() {
+                            willExceedLimit = false;
+                          });
+                        }
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      '${AppLocalizations.of(context)!.translate('current_total')}: ${currentTotal.toStringAsFixed(0)} ml',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade800,
+                      ),
+                    ),
+                    Text(
+                      '${AppLocalizations.of(context)!.translate('remaining')}: ${(_maxDailyWaterIntakeMl - currentTotal).toStringAsFixed(0)} ml',
+                      style: TextStyle(
+                        color: Colors.blue.shade600,
+                      ),
+                    ),
+                    if (willExceedLimit)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          AppLocalizations.of(context)!.translate('will_exceed_limit_warning'),
+                          style: TextStyle(
+                            color: Colors.orange.shade800,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(AppLocalizations.of(context)!.translate('cancel')),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      double amount = double.parse(amountController.text);
+                      
+                      if (currentTotal + amount > _maxDailyWaterIntakeMl) {
+                        bool? proceed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Row(
+                              children: [
+                                Icon(Icons.warning, color: Colors.orange),
+                                SizedBox(width: 8),
+                                Text(AppLocalizations.of(context)!.translate('warning')),
+                              ],
+                            ),
+                            content: Text(
+                              AppLocalizations.of(context)!.translate('exceeds_daily_limit_confirm'),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text(AppLocalizations.of(context)!.translate('cancel')),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: Text(AppLocalizations.of(context)!.translate('proceed')),
+                              ),
+                            ],
+                          ),
+                        );
+                        
+                        if (proceed != true) {
+                          return;
+                        }
+                      }
+                      
+                      Navigator.pop(context);
+                      getLogSave(howMuch: amountController.text);
+                    }
+                  },
+                  child: Text(AppLocalizations.of(context)!.translate('save')),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -251,394 +269,342 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            title: const Text(
-              'Daily Logs',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            centerTitle: true,
-          ),
-          body: _ageNotSet
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.water_drop_rounded,
+                  color: Colors.lightBlueAccent,
+                  size: 32,
+                ),
+                const SizedBox(width: 10),
+                RichText(
+                  text: TextSpan(
                     children: [
-                      Icon(Icons.person, size: 64, color: Colors.white70),
-                      SizedBox(height: 20),
-                      Text(
-                        'Age Information Required',
+                      TextSpan(
+                        text: AppLocalizations.of(context)!.translate('daily'),
                         style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Text(
-                          'We need your age to calculate your recommended daily water intake.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 30),
-                      ElevatedButton(
-                        onPressed: () => _showAgeInputDialog(context),
-                        child: Text('Enter Your Age'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.lightBlueAccent,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      TextSpan(
+                        text: AppLocalizations.of(context)!.translate('logs'),
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.lightBlueAccent,
                         ),
                       ),
                     ],
                   ),
-                )
-              : ScreenWithLoader(
-                  isLoading: _isLoading,
-                  body: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+                ),
+              ],
+            ),
+            centerTitle: true,
+          ),
+          body: ScreenWithLoader(
+            isLoading: _isLoading,
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 5),
+                    Text(
+                      AppLocalizations.of(context)!.translate('record_daily_activities'),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 25),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 10),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(
-                                Icons.water_drop_rounded,
-                                color: Colors.lightBlueAccent,
-                                size: 32,
-                              ),
-                              const SizedBox(width: 10),
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'Daily',
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: ' Logs',
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.lightBlueAccent,
-                                      ),
-                                    ),
-                                  ],
+                              Text(
+                                AppLocalizations.of(context)!.translate('hydration_journey'),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              if (contentList.length > 5)
+                                TextButton(
+                                  onPressed: () => _showAllWaterIntakeLogs(context),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.translate('view_all'),
+                                    style: TextStyle(
+                                      color: const Color(0xFF4CACBC),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
-                          const SizedBox(height: 5),
-                          Padding(
-                            padding: EdgeInsets.only(left: 42),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Record your daily activities',
-                                  style: TextStyle(fontSize: 16, color: Colors.white70),
-                                ),
-                                if (_userAge != null)
-                                  Text(
-                                    'Recommended intake: ${_maxDailyWaterIntakeMl.toStringAsFixed(0)} ml (Age: $_userAge)',
-                                    style: TextStyle(fontSize: 14, color: Colors.white70),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 25),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      'Track your hydration journey',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    if (contentList.length > 5)
-                                      TextButton(
-                                        onPressed: () => _showAllWaterIntakeLogs(context),
-                                        child: Text(
-                                          'View All',
-                                          style: TextStyle(
-                                            color: const Color(0xFF4CACBC),
-                                            fontWeight: FontWeight.bold,
+                          const SizedBox(height: 20),
+                          _isInitialLoad
+                              ? _buildShimmerLoader()
+                              : contentList.isNotEmpty
+                                  ? ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: _showOnlyTop5
+                                          ? (contentList.length > 2
+                                              ? 2
+                                              : contentList.length)
+                                          : contentList.length,
+                                      itemBuilder: (context, index) {
+                                        var item = contentList[index];
+                                        double amount =
+                                            double.tryParse(
+                                                  item.howMuch.toString().replaceAll(
+                                                    RegExp(r'[^0-9.]'),
+                                                    '',
+                                                  ),
+                                                ) ??
+                                                0;
+                                        int percentage =
+                                            ((amount / _maxDailyWaterIntakeMl) * 100)
+                                                .round()
+                                                .clamp(0, 100);
+
+                                        String dayText = AppLocalizations.of(
+                                          context,
+                                        )!.translate('today');
+                                        String timeText = '';
+                                        try {
+                                          DateTime dateTime = item.createdAt;
+                                          DateTime now = DateTime.now();
+                                          if (dateTime.year == now.year &&
+                                              dateTime.month == now.month &&
+                                              dateTime.day == now.day) {
+                                            dayText = AppLocalizations.of(
+                                              context,
+                                            )!.translate('today');
+                                          } else if (dateTime.year == now.year &&
+                                              dateTime.month == now.month &&
+                                              dateTime.day == now.day - 1) {
+                                            dayText = AppLocalizations.of(
+                                              context,
+                                            )!.translate('yesterday');
+                                          } else {
+                                            dayText = DateFormat(
+                                              'MMM dd',
+                                            ).format(dateTime);
+                                          }
+                                          timeText = DateFormat(
+                                            'h:mm a',
+                                          ).format(dateTime);
+                                        } catch (e) {
+                                          timeText = '8:30 AM';
+                                        }
+
+                                        return Container(
+                                          margin: const EdgeInsets.only(bottom: 12),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFE8F9FC),
+                                            borderRadius: BorderRadius.circular(16),
                                           ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                _isInitialLoad
-                                    ? _buildShimmerLoader()
-                                    : contentList.isNotEmpty
-                                        ? ListView.builder(
-                                            shrinkWrap: true,
-                                            physics: const NeverScrollableScrollPhysics(),
-                                            itemCount: _showOnlyTop5 
-                                                ? (contentList.length > 2 ? 2 : contentList.length)
-                                                : contentList.length,
-                                            itemBuilder: (context, index) {
-                                              var item = contentList[index];
-                                              double amount =
-                                                  double.tryParse(
-                                                        item.howMuch.toString().replaceAll(
-                                                          RegExp(r'[^0-9.]'),
-                                                          '',
-                                                        ),
-                                                      ) ??
-                                                      0;
-                                              int percentage = ((amount / _maxDailyWaterIntakeMl) * 100)
-                                                  .round()
-                                                  .clamp(0, 100);
-
-                                              String dayText = 'Today';
-                                              String timeText = '';
-                                              try {
-                                                DateTime dateTime = item.createdAt;
-                                                DateTime now = DateTime.now();
-                                                if (dateTime.year == now.year &&
-                                                    dateTime.month == now.month &&
-                                                    dateTime.day == now.day) {
-                                                  dayText = 'Today';
-                                                } else if (dateTime.year == now.year &&
-                                                    dateTime.month == now.month &&
-                                                    dateTime.day == now.day - 1) {
-                                                  dayText = 'Yesterday';
-                                                } else {
-                                                  dayText = DateFormat(
-                                                    'MMM dd',
-                                                  ).format(dateTime);
-                                                }
-                                                timeText = DateFormat(
-                                                  'h:mm a',
-                                                ).format(dateTime);
-                                              } catch (e) {
-                                                timeText = '8:30 AM';
-                                              }
-
-                                              return Container(
-                                                margin: const EdgeInsets.only(bottom: 12),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFE8F9FC),
-                                                  borderRadius: BorderRadius.circular(16),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 60,
+                                                  height: 60,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Center(
+                                                    child: Icon(
+                                                      Icons.water_drop,
+                                                      color: const Color(0xFF4CACBC),
+                                                      size: 32,
+                                                    ),
+                                                  ),
                                                 ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(16),
-                                                  child: Row(
+                                                const SizedBox(width: 16),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
                                                     children: [
-                                                      Container(
-                                                        width: 60,
-                                                        height: 60,
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          shape: BoxShape.circle,
+                                                      Text(
+                                                        '${item.howMuch} ml',
+                                                        style: const TextStyle(
+                                                          fontSize: 24,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Color(0xFF333333),
                                                         ),
-                                                        child: Center(
-                                                          child: Icon(
-                                                            Icons.water_drop,
-                                                            color: const Color(0xFF4CACBC),
-                                                            size: 32,
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.calendar_today,
+                                                            size: 16,
+                                                            color: Color(0xFF666666),
                                                           ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 16),
-                                                      Expanded(
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment.start,
-                                                          children: [
-                                                            Text(
-                                                              '${item.howMuch} ml',
-                                                              style: const TextStyle(
-                                                                fontSize: 24,
-                                                                fontWeight: FontWeight.bold,
-                                                                color: Color(0xFF333333),
+                                                          const SizedBox(width: 4),
+                                                          Text(
+                                                            dayText,
+                                                            style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color: Color(
+                                                                0xFF666666,
+                                                              ),
                                                             ),
+                                                          ),
+                                                          const SizedBox(width: 16),
+                                                          const Icon(
+                                                            Icons.access_time,
+                                                            size: 16,
+                                                            color: Color(0xFF666666),
+                                                          ),
+                                                          const SizedBox(width: 4),
+                                                          Text(
+                                                            timeText,
+                                                            style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color: Color(
+                                                                0xFF666666,
+                                                              ),
                                                             ),
-                                                            const SizedBox(height: 4),
-                                                            Row(
-                                                              children: [
-                                                                const Icon(
-                                                                  Icons.calendar_today,
-                                                                  size: 16,
-                                                                  color: Color(0xFF666666),
-                                                                ),
-                                                                const SizedBox(width: 4),
-                                                                Text(
-                                                                  dayText,
-                                                                  style: const TextStyle(
-                                                                    fontSize: 14,
-                                                                    color: Color(0xFF666666),
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(width: 16),
-                                                                const Icon(
-                                                                  Icons.access_time,
-                                                                  size: 16,
-                                                                  color: Color(0xFF666666),
-                                                                ),
-                                                                const SizedBox(width: 4),
-                                                                Text(
-                                                                  timeText,
-                                                                  style: const TextStyle(
-                                                                    fontSize: 14,
-                                                                    color: Color(0xFF666666),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      circularProgressWithText(
-                                                        percentage.toDouble(),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                              );
-                                            },
-                                          )
-                                        : _buildEmptyState(),
-                                if (contentList.isEmpty && !_isInitialLoad)
-                                  const SizedBox(height: 20),
-                                if (!_isInitialLoad)
-                                  Center(
-                                    child: ElevatedButton.icon(
-                                      onPressed: () {
-                                        if (_userAge == null) {
-                                          _showAgeInputDialog(context, isForAddingIntake: true);
-                                        } else {
-                                          _showAddWaterIntakeDialog(context);
-                                        }
+                                                circularProgressWithText(
+                                                  percentage.toDouble(),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
                                       },
-                                      icon: const Icon(Icons.add),
-                                      label: const Text('Add Water Intake'),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF4CACBC),
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 12,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    ),
+                                    )
+                                  : _buildEmptyState(),
+                          if (contentList.isEmpty && !_isInitialLoad)
+                            const SizedBox(height: 20),
+                          if (!_isInitialLoad)
+                            Center(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  _showAddWaterIntakeDialog(context);
+                                },
+                                icon: const Icon(Icons.add),
+                                label: Text(
+                                  AppLocalizations.of(context)!.translate('add_water_intake'),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4CACBC),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
                                   ),
-                              ],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
                             ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
                           ),
-                          const SizedBox(height: 20),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.lightBlue.shade50,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                        Icons.flag_rounded,
-                                        color: Colors.blue,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    const Text(
-                                      'Daily Target',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF0D3B3F),
-                                      ),
-                                    ),
-                                  ],
+                                child: const Icon(
+                                  Icons.flag_rounded,
+                                  color: Colors.blue,
+                                  size: 24,
                                 ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    _buildTargetItem(
-                                      '${(_maxDailyWaterIntakeMl * 0.5).toStringAsFixed(0)} ml',
-                                      'Minimum',
-                                      Icons.water_drop,
-                                    ),
-                                    _buildTargetItem(
-                                      '${_maxDailyWaterIntakeMl.toStringAsFixed(0)} ml',
-                                      'Your Goal',
-                                      Icons.local_drink,
-                                    ),
-                                    _buildTargetItem(
-                                      '250 ml',
-                                      'Per Glass',
-                                      Icons.straighten,
-                                    ),
-                                  ],
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                AppLocalizations.of(context)!.translate('daily_target'),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0D3B3F),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildTargetItem(
+                                '${(_maxDailyWaterIntakeMl * 0.5).toStringAsFixed(0)} ml',
+                                AppLocalizations.of(context)!.translate('minimum'),
+                                Icons.water_drop,
+                              ),
+                              _buildTargetItem(
+                                '${_maxDailyWaterIntakeMl.toStringAsFixed(0)} ml',
+                                AppLocalizations.of(context)!.translate('your_goal'),
+                                Icons.local_drink,
+                              ),
+                              _buildTargetItem(
+                                '250 ml',
+                                AppLocalizations.of(context)!.translate('per_glass'),
+                                Icons.straighten,
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
-          floatingActionButton: _ageNotSet
-              ? null
-              : FloatingActionButton(
-                  backgroundColor: Colors.lightBlueAccent,
-                  onPressed: () {
-                    if (_userAge == null) {
-                      _showAgeInputDialog(context, isForAddingIntake: true);
-                    } else {
-                      _showAddWaterIntakeDialog(context);
-                    }
-                  },
-                  child: const Icon(Icons.add, color: Colors.white),
-                ),
+              ),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.lightBlueAccent,
+            onPressed: () {
+              _showAddWaterIntakeDialog(context);
+            },
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
         ),
       ),
     );
@@ -784,7 +750,7 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No water intake logs yet',
+            AppLocalizations.of(context)!.translate('no_water_intake_logs'),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -793,21 +759,19 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Start tracking your hydration by adding your first water intake',
+            AppLocalizations.of(context)!.translate('start_tracking_hydration'),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              if (_userAge == null) {
-                _showAgeInputDialog(context, isForAddingIntake: true);
-              } else {
-                _showAddWaterIntakeDialog(context);
-              }
+              _showAddWaterIntakeDialog(context);
             },
             icon: const Icon(Icons.add),
-            label: const Text('Add Water Intake'),
+            label: Text(
+              AppLocalizations.of(context)!.translate('add_water_intake'),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -818,186 +782,6 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showAddWaterIntakeDialog(BuildContext context) {
-    String selectedAmount = '250';
-    double currentTotal = _calculateCurrentTotal();
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Add Water Intake'),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Daily Limit: ${_maxDailyWaterIntakeMl.toStringAsFixed(0)} ml (Age: $_userAge)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade800,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Current intake: ${currentTotal.toStringAsFixed(0)} ml',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: currentTotal >= _maxDailyWaterIntakeMl
-                              ? Colors.red
-                              : Colors.green,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('How much water did you drink?'),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildWaterAmountOption(
-                      context,
-                      '100',
-                      selectedAmount,
-                      (value) {
-                        setState(() {
-                          selectedAmount = value;
-                        });
-                      },
-                    ),
-                    _buildWaterAmountOption(
-                      context,
-                      '250',
-                      selectedAmount,
-                      (value) {
-                        setState(() {
-                          selectedAmount = value;
-                        });
-                      },
-                    ),
-                    _buildWaterAmountOption(
-                      context,
-                      '500',
-                      selectedAmount,
-                      (value) {
-                        setState(() {
-                          selectedAmount = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Custom Amount (ml)',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    if (value.isNotEmpty) {
-                      setState(() {
-                        selectedAmount = value;
-                      });
-                    }
-                  },
-                ),
-                if (currentTotal >= _maxDailyWaterIntakeMl)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'You have reached your daily limit!',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  double amount = double.tryParse(selectedAmount) ?? 0;
-                  double newTotal = currentTotal + amount;
-                  
-                  if (newTotal > _maxDailyWaterIntakeMl) {
-                    _showLimitExceededDialog(context, amount, currentTotal);
-                  } else {
-                    Navigator.pop(context);
-                    getLogSave(howMuch: selectedAmount);
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildWaterAmountOption(
-    BuildContext context,
-    String amount,
-    String selectedAmount,
-    Function(String) onSelected,
-  ) {
-    final isSelected = selectedAmount == amount;
-    return InkWell(
-      onTap: () {
-        onSelected(amount);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue.shade100 : Colors.blue.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? Colors.blue.shade400 : Colors.blue.shade200,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(Icons.water_drop, color: Colors.blue.shade400),
-            const SizedBox(height: 4),
-            Text(
-              '$amount ml',
-              style: TextStyle(
-                color: Colors.blue.shade700,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1063,9 +847,19 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
       case ApiStatus.SUCCESS:
         setState(() {
           _isLoading = false;
-          contentList = state.response?.dailyLog ?? [];
+          if (state.response?.limit != null) {
+            _maxDailyWaterIntakeMl =
+                double.tryParse(state.response!.limit!.toString()) ?? 0.0;
+          }
+          todayTotalIntake = state.response?.todayTotal ?? '0';
+          
+          // Check if limit was exceeded after saving
+          double newTotal = _calculateCurrentTotal();
+          if (newTotal > _maxDailyWaterIntakeMl) {
+            _showLimitExceededDialog(context);
+          }
         });
-        fetchDailyLogs(); // Refresh the list after saving
+        fetchDailyLogs();
         break;
       case ApiStatus.ERROR:
         setState(() {
@@ -1078,7 +872,6 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
   }
 }
 
-// New page to show all water intake logs
 class AllWaterIntakeLogsPage extends StatelessWidget {
   final List<dynamic> contentList;
   final double maxDailyWaterIntakeMl;
@@ -1096,8 +889,8 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'All Water Intake Logs',
+        title: Text(
+          AppLocalizations.of(context)!.translate('all_water_intake_logs'),
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -1132,7 +925,7 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
                   Icon(Icons.water_drop, color: Colors.blue.shade600, size: 24),
                   const SizedBox(width: 12),
                   Text(
-                    'Complete Water Intake History',
+                    AppLocalizations.of(context)!.translate('complete_water_history'),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1155,7 +948,7 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No water intake logs found',
+                            AppLocalizations.of(context)!.translate('no_water_intake_logs_found'),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -1170,18 +963,21 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
                       itemCount: contentList.length,
                       itemBuilder: (context, index) {
                         var item = contentList[index];
-                        double amount = double.tryParse(
-                              item.howMuch.toString().replaceAll(
-                                RegExp(r'[^0-9.]'),
-                                '',
-                              ),
-                            ) ??
-                            0;
+                        double amount =
+                            double.tryParse(
+                                  item.howMuch.toString().replaceAll(
+                                    RegExp(r'[^0-9.]'),
+                                    '',
+                                  ),
+                                ) ??
+                                0;
                         int percentage = ((amount / maxDailyWaterIntakeMl) * 100)
                             .round()
                             .clamp(0, 100);
 
-                        String dayText = 'Today';
+                        String dayText = AppLocalizations.of(
+                          context,
+                        )!.translate('today');
                         String timeText = '';
                         String fullDateText = '';
                         try {
@@ -1190,19 +986,27 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
                           if (dateTime.year == now.year &&
                               dateTime.month == now.month &&
                               dateTime.day == now.day) {
-                            dayText = 'Today';
+                            dayText = AppLocalizations.of(
+                              context,
+                            )!.translate('today');
                           } else if (dateTime.year == now.year &&
                               dateTime.month == now.month &&
                               dateTime.day == now.day - 1) {
-                            dayText = 'Yesterday';
+                            dayText = AppLocalizations.of(
+                              context,
+                            )!.translate('yesterday');
                           } else {
                             dayText = DateFormat('MMM dd').format(dateTime);
                           }
                           timeText = DateFormat('h:mm a').format(dateTime);
-                          fullDateText = DateFormat('MMM dd, yyyy').format(dateTime);
+                          fullDateText = DateFormat(
+                            'MMM dd, yyyy',
+                          ).format(dateTime);
                         } catch (e) {
                           timeText = '8:30 AM';
-                          fullDateText = 'Unknown date';
+                          fullDateText = AppLocalizations.of(
+                            context,
+                          )!.translate('unknown_date');
                         }
 
                         return Container(
@@ -1244,7 +1048,8 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '${item.howMuch} ml',
@@ -1303,9 +1108,10 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
                                         value: percentage / 100,
                                         strokeWidth: 6,
                                         backgroundColor: Colors.grey[300],
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          Color(0xFF4CACBC),
-                                        ),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Color(0xFF4CACBC),
+                                            ),
                                       ),
                                     ),
                                     Text(

@@ -363,6 +363,7 @@ class _HeartCareDashboardState extends State<HeartCareDashboard> {
               );
 
               if (shouldLogout ?? false) {
+                await UserSession.clear();
                 if (mounted) {
                   Navigator.pushAndRemoveUntil(
                     context,
@@ -567,6 +568,7 @@ class HomePage extends StatelessWidget {
             ),
             // const SizedBox(height: 16),
             Container(
+              margin: EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color:
