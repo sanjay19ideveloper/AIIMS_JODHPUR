@@ -148,7 +148,7 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
                         if (amount == null || amount <= 0) {
                           return AppLocalizations.of(context)!.translate('enter_valid_amount');
                         }
-                        if (currentTotal + amount > _maxDailyWaterIntakeMl) {
+                        if (_maxDailyWaterIntakeMl > 0 && currentTotal + amount > _maxDailyWaterIntakeMl) {
                           return AppLocalizations.of(context)!.translate('exceeds_daily_limit');
                         }
                         return null;
@@ -157,7 +157,8 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
                         if (value.isNotEmpty) {
                           final amount = double.tryParse(value) ?? 0;
                           setState(() {
-                            willExceedLimit = currentTotal + amount > _maxDailyWaterIntakeMl;
+                            willExceedLimit = _maxDailyWaterIntakeMl > 0 && 
+                                currentTotal + amount > _maxDailyWaterIntakeMl;
                           });
                         } else {
                           setState(() {
@@ -174,12 +175,13 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
                         color: Colors.blue.shade800,
                       ),
                     ),
-                    Text(
-                      '${AppLocalizations.of(context)!.translate('remaining')}: ${(_maxDailyWaterIntakeMl - currentTotal).toStringAsFixed(0)} ml',
-                      style: TextStyle(
-                        color: Colors.blue.shade600,
+                    if (_maxDailyWaterIntakeMl > 0)
+                      Text(
+                        '${AppLocalizations.of(context)!.translate('remaining')}: ${(_maxDailyWaterIntakeMl - currentTotal).toStringAsFixed(0)} ml',
+                        style: TextStyle(
+                          color: Colors.blue.shade600,
+                        ),
                       ),
-                    ),
                     if (willExceedLimit)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
@@ -204,7 +206,7 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
                     if (_formKey.currentState!.validate()) {
                       double amount = double.parse(amountController.text);
                       
-                      if (currentTotal + amount > _maxDailyWaterIntakeMl) {
+                      if (_maxDailyWaterIntakeMl > 0 && currentTotal + amount > _maxDailyWaterIntakeMl) {
                         bool? proceed = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
@@ -376,10 +378,9 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
                                                   ),
                                                 ) ??
                                                 0;
-                                        int percentage =
-                                            ((amount / _maxDailyWaterIntakeMl) * 100)
-                                                .round()
-                                                .clamp(0, 100);
+                                        int percentage = _maxDailyWaterIntakeMl > 0 
+                                            ? ((amount / _maxDailyWaterIntakeMl) * 100).round().clamp(0, 100)
+                                            : 0;
 
                                         String dayText = AppLocalizations.of(
                                           context,
@@ -812,6 +813,7 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
           _isInitialLoad = false;
           contentList = state.response?.dailyLog ?? [];
           Log.v('data is $contentList');
+          
         });
         break;
       case ApiStatus.ERROR:
@@ -855,7 +857,7 @@ class _DailyLogsPageState extends State<DailyLogsPage> {
           
           // Check if limit was exceeded after saving
           double newTotal = _calculateCurrentTotal();
-          if (newTotal > _maxDailyWaterIntakeMl) {
+          if (_maxDailyWaterIntakeMl > 0 && newTotal > _maxDailyWaterIntakeMl) {
             _showLimitExceededDialog(context);
           }
         });
@@ -971,9 +973,9 @@ class AllWaterIntakeLogsPage extends StatelessWidget {
                                   ),
                                 ) ??
                                 0;
-                        int percentage = ((amount / maxDailyWaterIntakeMl) * 100)
-                            .round()
-                            .clamp(0, 100);
+                        int percentage = maxDailyWaterIntakeMl > 0
+                            ? ((amount / maxDailyWaterIntakeMl) * 100).round().clamp(0, 100)
+                            : 0;
 
                         String dayText = AppLocalizations.of(
                           context,

@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:aiims_heartcare/data/model/LearningContent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:aiims_heartcare/blocs/bloc_manager.dart';
 import 'package:aiims_heartcare/blocs/home_bloc.dart';
 import 'package:aiims_heartcare/data/api/api_service.dart';
