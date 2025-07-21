@@ -113,5 +113,6 @@
   "current_intake_info": "Current intake: {0} ml",
   "exceeds_daily_limit_confirm": "This will exceed your recommended daily water intake. Are you sure you want to proceed?",
   "warning": "Warning",
-  "proceed": "Proceed"
+  "noLabReports": "No Lab Reports"
+  
 }

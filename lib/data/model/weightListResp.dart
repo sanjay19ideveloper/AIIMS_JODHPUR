@@ -34,8 +34,8 @@ class Weight {
     String? weight;
     String? measuredAt;
     MeasuredIn? measuredIn;
-    DateTime? createdAt;
-    DateTime? updatedAt;
+    String? createdAt;
+    String? updatedAt;
 
     Weight({
         this.id,
@@ -57,8 +57,8 @@ class Weight {
         weight: json["weight"],
         measuredAt: json["measured_at"],
         measuredIn: measuredInValues.map[json["measured_in"]]!,
-        createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-        updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"],
+        updatedAt: json["updated_at"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -67,8 +67,8 @@ class Weight {
         "weight": weight,
         "measured_at": measuredAt,
         "measured_in": measuredInValues.reverse[measuredIn],
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
+        "created_at": createdAt,
+        "updated_at": updatedAt,
     };
 }
 

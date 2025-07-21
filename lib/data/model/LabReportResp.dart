@@ -53,9 +53,9 @@ class LabTest {
   String? pulseRate;
   String? bloodPressure;
   String? weight;
-  DateTime? date;
-  CreatedAt? createdAt;
-  DateTime? updatedAt;
+  String? date;
+  String? createdAt;
+  String? updatedAt;
   dynamic deletedAt;
 
   LabTest({
@@ -106,10 +106,10 @@ class LabTest {
     pulseRate: json["pulse_rate"],
     bloodPressure: json["blood_pressure"],
     weight: json["weight"],
-    date: json["date"] == null ? null : DateTime.parse(json["date"]),
-    createdAt: createdAtValues.map[json["created_at"]]!,
+    date: json["date"],
+    createdAt: json["created_at"],
     updatedAt:
-        json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+        json["updated_at"] ,
     deletedAt: json["deleted_at"],
   );
 
@@ -132,10 +132,10 @@ class LabTest {
     "pulse_rate": pulseRate,
     "blood_pressure": bloodPressure,
     "weight": weight,
-    "date":
-        "${date!.year.toString().padLeft(4, '0')}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}",
+    "date":date,
+
     "created_at": createdAtValues.reverse[createdAt],
-    "updated_at": updatedAt?.toIso8601String(),
+    "updated_at": updatedAt,
     "deleted_at": deletedAt,
   };
 }

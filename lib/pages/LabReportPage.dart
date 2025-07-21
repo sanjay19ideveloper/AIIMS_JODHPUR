@@ -120,7 +120,7 @@ class _LabReportPageState extends State<LabReportPage> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Lab Report - ${_formatDate(labTest.date)}',
+                      'Lab Report - ${_formatDate(labTest.date.toString())}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -532,12 +532,17 @@ class _LabReportPageState extends State<LabReportPage> {
     );
   }
 
-  String _formatDate(DateTime? date) {
+  String _formatDate(String? date) {
     if (date == null) return 'N/A';
-    return DateFormat('dd MMM yyyy').format(date);
+    try {
+      final parsedDate = DateTime.parse(date);
+      return DateFormat('dd MMM yyyy').format(parsedDate);
+    } catch (e) {
+      return 'N/A';
+    }
   }
 
-  String _formatCreatedAt(CreatedAt? createdAt) {
+  String _formatCreatedAt(String? createdAt) {
     if (createdAt == null) return 'N/A';
     return '2 May 2025'; // Based on your enum value
   }

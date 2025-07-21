@@ -61,7 +61,7 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
             body: CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  iconTheme: IconThemeData(color: Colors.white),
+                  iconTheme: const IconThemeData(color: Colors.white),
                   backgroundColor: const Color(0xFF0D3B3F),
                   expandedHeight: 200.0,
                   floating: false,
@@ -113,8 +113,8 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
                               Column(
                                 children: [
                                   Text(
-                                    '${weightList?.first.weight ?? 0}',
-                                    style: TextStyle(
+                                    '${weightList?.isNotEmpty == true ? weightList?.first.weight ?? 0 : 0}',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
@@ -164,63 +164,60 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child:
-                      _isCalendarView
-                          ? _buildCalendarView()
-                          : Container(
-                            color: const Color(0xFF0D3B3F),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                _buildMonthTab('Week 1', false),
-                                _buildMonthTab('Week 2', true),
-                                _buildMonthTab('Week 3', false),
-                                _buildMonthTab('Week 4', false),
-                              ],
-                            ),
+                  child: _isCalendarView
+                      ? _buildCalendarView()
+                      : Container(
+                          color: const Color(0xFF0D3B3F),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildMonthTab('Week 1', false),
+                              _buildMonthTab('Week 2', true),
+                              _buildMonthTab('Week 3', false),
+                              _buildMonthTab('Week 4', false),
+                            ],
+                          ),
+                        ),
                 ),
                 _isCalendarView
                     ? _buildCalendarEntries()
                     : SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        if (weightList == null || weightList!.isEmpty) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Text('No weight entries found'),
-                            ),
-                          );
-                        }
-                        final weight = weightList![index];
-                        DateTime? date;
-                        try {
-                          date = DateTime.tryParse(weight.measuredAt ?? '');
-                          if (date == null) {
-                            // Try parsing with different format if needed
-                            date = DateFormat(
-                              'dd MMM yyyy',
-                            ).parse(weight.measuredAt!);
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          if (weightList == null || weightList!.isEmpty) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text('No weight entries found'),
+                              ),
+                            );
                           }
-                        } catch (e) {
-                          date = DateTime.now();
-                        }
+                          final weight = weightList![index];
+                          DateTime? date;
+                          try {
+                            date = DateTime.tryParse(weight.measuredAt ?? '');
+                            if (date == null) {
+                              // Try parsing with different format if needed
+                              date = DateFormat('dd MMM yyyy').parse(weight.measuredAt!);
+                            }
+                          } catch (e) {
+                            date = DateTime.now();
+                          }
 
-                        final day = date.day.toString();
-                        final dayOfWeek =
-                            DateFormat('E').format(date).toUpperCase();
-                        return _buildWeightEntry(
-                          day,
-                          dayOfWeek,
-                          weight.weight ?? '0',
-                          'Measured at ${DateFormat('hh:mm a').format(date)}',
-                        );
-                      }, childCount: weightList?.length ?? 0),
-                    ),
+                          final day = date.day.toString();
+                          final dayOfWeek =
+                              DateFormat('E').format(date).toUpperCase();
+                          return _buildWeightEntry(
+                            day,
+                            dayOfWeek,
+                            weight.weight ?? '0',
+                            'Measured at ${DateFormat('hh:mm a').format(date)}',
+                          );
+                        }, childCount: weightList?.length ?? 0),
+                      ),
               ],
             ),
           ),
@@ -331,22 +328,21 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
 
   SliverList _buildCalendarEntries() {
     // Filter entries for the selected day
-    final filteredEntries =
-        weightList?.where((entry) {
-          if (entry.measuredAt == null) return false;
+    final filteredEntries = weightList?.where((entry) {
+      if (entry.measuredAt == null) return false;
 
-          DateTime? entryDate;
-          try {
-            entryDate = DateTime.tryParse(entry.measuredAt ?? '');
-            if (entryDate == null) {
-              entryDate = DateFormat('dd MMM yyyy').parse(entry.measuredAt!);
-            }
-          } catch (e) {
-            return false;
-          }
+      DateTime? entryDate;
+      try {
+        entryDate = DateTime.tryParse(entry.measuredAt ?? '');
+        if (entryDate == null) {
+          entryDate = DateFormat('dd MMM yyyy').parse(entry.measuredAt!);
+        }
+      } catch (e) {
+        return false;
+      }
 
-          return isSameDay(entryDate, _selectedDay);
-        }).toList();
+      return isSameDay(entryDate, _selectedDay);
+    }).toList();
 
     return SliverList(
       delegate: SliverChildBuilderDelegate(
@@ -388,14 +384,13 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
   Widget _buildMonthTab(String month, bool isSelected) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration:
-          isSelected
-              ? const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.white, width: 2.0),
-                ),
-              )
-              : null,
+      decoration: isSelected
+          ? const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.white, width: 2.0),
+              ),
+            )
+          : null,
       child: Text(
         month,
         style: TextStyle(
@@ -494,100 +489,99 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
   void _showAddWeightDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Row(
-              children: const [
-                Icon(
-                  FontAwesomeIcons.weightScale,
-                  color: Color(0xFF0D3B3F),
-                  size: 20,
-                ),
-                SizedBox(width: 8),
-                Text('Add Weight'),
-              ],
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(
+              FontAwesomeIcons.weightScale,
+              color: Color(0xFF0D3B3F),
+              size: 20,
             ),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            SizedBox(width: 8),
+            Text('Add Weight'),
+          ],
+        ),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _weightController,
+                keyboardType: TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Weight (kg)',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(
+                    FontAwesomeIcons.weightScale,
+                    size: 16,
+                  ),
+                  suffixText: 'kg',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your weight';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  TextFormField(
-                    controller: _weightController,
-                    keyboardType: TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: 'Weight (kg)',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      prefixIcon: const Icon(
-                        FontAwesomeIcons.weightScale,
-                        size: 16,
-                      ),
-                      suffixText: 'kg',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your weight';
-                      }
-                      if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Date: ${DateFormat('yyyy-MM-dd').format(_selectedDay)}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Time: ${DateFormat('hh:mm a').format(DateTime.now())}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  const Icon(Icons.calendar_today, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Date: ${DateFormat('yyyy-MM-dd').format(_selectedDay)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0D3B3F),
-                ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    final weight = _weightController.text.trim();
-                    debugPrint('weight count is $weight');
-                    gethWeightSave(weightCount: weight);
-                    fetchWeightList();
-
-                    Navigator.pop(context);
-                    _showSuccessSnackBar('Weight added successfully!');
-                    _weightController.clear();
-                  }
-                },
-                child: const Text('Save'),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.access_time, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Time: ${DateFormat('hh:mm a').format(DateTime.now())}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
             ],
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0D3B3F),
+            ),
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                final weight = _weightController.text.trim();
+                debugPrint('weight count is $weight');
+                gethWeightSave(weightCount: weight);
+                fetchWeightList();
+
+                Navigator.pop(context);
+                _showSuccessSnackBar('Weight added successfully!');
+                _weightController.clear();
+              }
+            },
+            child: const Text('Save',style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -595,149 +589,146 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
     _weightController.text = currentWeight;
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Row(
-              children: const [
-                Icon(Icons.edit, color: Color(0xFF0D3B3F), size: 20),
-                SizedBox(width: 8),
-                Text('Edit Weight'),
-              ],
-            ),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _weightController,
-                    keyboardType: TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: 'Weight (kg)',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      prefixIcon: const Icon(
-                        FontAwesomeIcons.weightScale,
-                        size: 16,
-                      ),
-                      suffixText: 'kg',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your weight';
-                      }
-                      if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0D3B3F),
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.edit, color: Color(0xFF0D3B3F), size: 20),
+            SizedBox(width: 8),
+            Text('Edit Weight'),
+          ],
+        ),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _weightController,
+                keyboardType: TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.pop(context);
-                    _showSuccessSnackBar('Weight updated successfully!');
-                    _weightController.clear();
+                decoration: InputDecoration(
+                  labelText: 'Weight (kg)',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(
+                    FontAwesomeIcons.weightScale,
+                    size: 16,
+                  ),
+                  suffixText: 'kg',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your weight';
                   }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
                 },
-                child: const Text('Update'),
               ),
             ],
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0D3B3F),
+            ),
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                Navigator.pop(context);
+                _showSuccessSnackBar('Weight updated successfully!');
+                _weightController.clear();
+              }
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
     );
   }
 
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Delete Weight Entry'),
-            content: const Text(
-              'Are you sure you want to delete this weight entry?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showSuccessSnackBar('Weight entry deleted!');
-                },
-                child: const Text('Delete'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Weight Entry'),
+        content: const Text(
+          'Are you sure you want to delete this weight entry?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(context);
+              _showSuccessSnackBar('Weight entry deleted!');
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 
   void _showFilterDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Row(
-              children: const [
-                Icon(Icons.filter_list, color: Color(0xFF0D3B3F), size: 20),
-                SizedBox(width: 8),
-                Text('Filter Weight Entries'),
-              ],
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.filter_list, color: Color(0xFF0D3B3F), size: 20),
+            SizedBox(width: 8),
+            Text('Filter Weight Entries'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('This Week'),
+              onTap: () {
+                Navigator.pop(context);
+                _showSuccessSnackBar('Filtered by: This Week');
+              },
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.calendar_today),
-                  title: const Text('This Week'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showSuccessSnackBar('Filtered by: This Week');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.calendar_month),
-                  title: const Text('This Month'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showSuccessSnackBar('Filtered by: This Month');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.date_range),
-                  title: const Text('Last 3 Months'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showSuccessSnackBar('Filtered by: Last 3 Months');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.all_inclusive),
-                  title: const Text('All Time'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showSuccessSnackBar('Filtered by: All Time');
-                  },
-                ),
-              ],
+            ListTile(
+              leading: const Icon(Icons.calendar_month),
+              title: const Text('This Month'),
+              onTap: () {
+                Navigator.pop(context);
+                _showSuccessSnackBar('Filtered by: This Month');
+              },
             ),
-          ),
+            ListTile(
+              leading: const Icon(Icons.date_range),
+              title: const Text('Last 3 Months'),
+              onTap: () {
+                Navigator.pop(context);
+                _showSuccessSnackBar('Filtered by: Last 3 Months');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.all_inclusive),
+              title: const Text('All Time'),
+              onTap: () {
+                Navigator.pop(context);
+                _showSuccessSnackBar('Filtered by: All Time');
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -758,9 +749,7 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
   }
 
   void gethWeightSave({String? weightCount}) {
-    BlocProvider.of<HomeBloc>(
-      context,
-    ).add(WeightSaveEvent(weight: weightCount));
+    BlocProvider.of<HomeBloc>(context).add(WeightSaveEvent(weight: weightCount));
   }
 
   void handleWeightSaveResponse(WeightSaveState state) {
@@ -775,7 +764,6 @@ class _WeightTrackerPageState extends State<WeightTrackerPage> {
           _isLoading = false;
           weightSaveList = state.response?.weights;
         });
-
         break;
       case ApiStatus.ERROR:
         setState(() {
