@@ -113,6 +113,19 @@
   "current_intake_info": "वर्तमान सेवन: {0} मिली",
   "exceeds_daily_limit_confirm": "यह आपके दैनिक पानी की सिफारिश की गई मात्रा से अधिक होगा। क्या आप वाकई आगे बढ़ना चाहते हैं?",
   "warning": "चेतावनी",
+
+  "noLabReports": "कोई प्रयोगशाला रिपोर्ट नहीं",
+  "amount_ml" : "मात्रा (मिली)",
+
+  "enter_amount": "कृपया एक मात्रा दर्ज करें",
+  "enter_valid_amount": "कृपया एक वैध मात्रा दर्ज करें",
+  "current_total": "वर्तमान कुल",
+  "remaining": "शेष",
+  "exceeds_daily_limit": "यह आपकी दैनिक सीमा से अधिक है",
+  "will_exceed_limit_warning": "यह आपकी दैनिक सीमा से अधिक होगा",
   "proceed": "आगे बढ़ें",
-  "noLabReports": "कोई प्रयोगशाला रिपोर्ट नहीं"
+  "today_intake": "आज का सेवन",
+  "limit_reached": "सीमा पहुँच गई!",
+  "consumed": "उपभोग किया",
+  "recent_logs": "हाल के लॉग"
 }

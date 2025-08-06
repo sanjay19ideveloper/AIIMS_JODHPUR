@@ -568,6 +568,44 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   'Vital Signs',
                   user?.clinicalOutcome?.vitalSigns ?? '',
                 ),
+                if (user?.clinicalOutcome?.hbalc != null)
+                _buildInfoRow(
+                  Icons.monitor_heart,
+                  'hbalc',
+                  user?.clinicalOutcome?.hbalc ?? '',
+                ),
+                 if (user?.clinicalOutcome?.urea != null)
+                _buildInfoRow(
+                  Icons.monitor_heart,
+                  'Urea',
+                  user?.clinicalOutcome?.urea ?? '',
+                ),
+                 if (user?.clinicalOutcome?.creatinine != null)
+                _buildInfoRow(
+                  Icons.monitor_heart,
+                  'Creatinine',
+                  user?.clinicalOutcome?.creatinine ?? '',
+                ),
+
+                 if (user?.clinicalOutcome?.sodium != null)
+                _buildInfoRow(
+                  Icons.monitor_heart,
+                  'Sodium',
+                  user?.clinicalOutcome?.sodium ?? '',
+                ),
+                 if (user?.clinicalOutcome?.potassium != null)
+                _buildInfoRow(
+                  Icons.monitor_heart,
+                  'Potassium',
+                  user?.clinicalOutcome?.potassium ?? '',
+                ),
+
+                if (user?.clinicalOutcome?.chloride!= null)
+                _buildInfoRow(
+                  Icons.monitor_heart,
+                  'Chloride',
+                  user?.clinicalOutcome?.chloride ?? '',
+                ),
             ] else
               _buildInfoRow(
                 Icons.science,

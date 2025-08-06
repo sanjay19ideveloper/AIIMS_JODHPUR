@@ -40,7 +40,9 @@ class MedicineResponse {
   };
 }
 
-class Medication {
+class 
+
+Medication {
   String? id;
   String? userId;
   String? medicineId;

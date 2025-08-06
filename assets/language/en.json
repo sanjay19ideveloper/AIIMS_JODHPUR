@@ -113,6 +113,17 @@
   "current_intake_info": "Current intake: {0} ml",
   "exceeds_daily_limit_confirm": "This will exceed your recommended daily water intake. Are you sure you want to proceed?",
   "warning": "Warning",
-  "noLabReports": "No Lab Reports"
-  
+  "noLabReports": "No Lab Reports",
+  "amount_ml": "Amount (ml)",
+  "enter_amount": "Please enter an amount",
+  "enter_valid_amount": "Please enter a valid amount",
+  "current_total": "Current Total",
+  "remaining": "Remaining",
+  "exceeds_daily_limit": "This exceeds your daily limit",
+  "will_exceed_limit_warning": "This will exceed your daily limit",
+  "proceed": "Proceed",
+  "today_intake": "Today's Intake",
+  "limit_reached": "Limit Reached!",
+  "consumed": "Consumed",
+  "recent_logs": "Recent Logs"
 }

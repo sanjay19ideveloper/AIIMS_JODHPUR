@@ -13,6 +13,7 @@ import 'package:aiims_heartcare/data/model/attemptCreateModel.dart';
 import 'package:aiims_heartcare/data/model/attemptModel.dart';
 import 'package:aiims_heartcare/data/model/loginModel.dart';
 import 'package:aiims_heartcare/data/model/medicineModel.dart';
+import 'package:aiims_heartcare/data/model/medicineSaveStatusResponse.dart';
 import 'package:aiims_heartcare/data/model/profileModel.dart';
 import 'package:aiims_heartcare/data/model/request/AttemptSaveRequest.dart';
 import 'package:aiims_heartcare/data/model/request/login_request.dart';
@@ -134,7 +135,16 @@ class WeightListEvent extends HomeEvent {
 }
 
 class MedicineEvent extends HomeEvent {
-  MedicineEvent() : super([]);
+  int? medicineId;
+  MedicineEvent({this.medicineId}) : super([medicineId]);
+
+  List<Object> get props => throw UnimplementedError();
+}
+
+class MedicineStatusSaveEvent extends HomeEvent {
+  String? medicineId;
+  String? status;
+  MedicineStatusSaveEvent({this.medicineId, this.status}) : super([medicineId, status]);
 
   List<Object> get props => throw UnimplementedError();
 }
@@ -160,6 +170,16 @@ class LoginState extends HomeState {
   String? error;
 
   LoginState(this.state, {this.response, this.error});
+}
+
+class MedicineStatusSaveState extends HomeState {
+  ApiStatus state;
+
+  ApiStatus get apiState => state;
+  MedicineSaveStatusResp? response;
+  String? error;
+
+  MedicineStatusSaveState(this.state, {this.response, this.error});
 }
 
 class AttemptSaveState extends HomeState {
@@ -748,6 +768,37 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         Log.v("Medicine API Error: $e\n$stackTrace");
         emit(
           MedicineState(
+            ApiStatus.ERROR,
+            error:
+                e is Exception
+                    ? e.toString()
+                    : 'Failed to load learning content',
+          ),
+        );
+      }
+    }, transformer: concurrent());
+
+    on<MedicineStatusSaveEvent>((event, emit) async {
+      try {
+        emit(MedicineStatusSaveState(ApiStatus.LOADING));
+
+        final response = await homeRepository.saveMedicineStatus(medicineId:event.medicineId,status:event.status);
+        Log.v("Medicine API Response: ${response.toJson()}");
+
+        if (response.status == true) {
+          emit(MedicineStatusSaveState(ApiStatus.SUCCESS, response: response));
+        } 
+        else {
+          // Use the server's message if available, otherwise fallback
+          final errorMessage =
+              response.message ?? 'No Medicine content available';
+          Log.v("API returned false status: $errorMessage");
+          emit(MedicineStatusSaveState(ApiStatus.ERROR, error: errorMessage));
+        }
+      } catch (e, stackTrace) {
+        Log.v("Medicine API Error: $e\n$stackTrace");
+        emit(
+          MedicineStatusSaveState(
             ApiStatus.ERROR,
             error:
                 e is Exception

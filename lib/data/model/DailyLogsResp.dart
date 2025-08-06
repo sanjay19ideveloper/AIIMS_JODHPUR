@@ -33,8 +33,8 @@ class DailyLog {
     int? howMuch;
     dynamic what;
     String? userId;
-    DateTime? createdAt;
-    DateTime? updatedAt;
+    String? createdAt;
+    String? updatedAt;
 
     DailyLog({
         this.id,
@@ -54,8 +54,8 @@ class DailyLog {
         howMuch: json["how_much"],
         what: json["what"],
         userId: json["user_id"],
-        createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-        updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+        createdAt: json["created_at"],
+        updatedAt: json["updated_at"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -63,7 +63,7 @@ class DailyLog {
         "how_much": howMuch,
         "what": what,
         "user_id": userId,
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
+        "created_at": createdAt,
+        "updated_at": updatedAt,
     };
 }

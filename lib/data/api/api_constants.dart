@@ -17,4 +17,6 @@ class ApiConstants {
   static const dailyLog = "patient/daily-logs";
   static const labReport = 'patient/lab-test';
   static const zoneSave = 'symptoms/attempts/save';
+  static const medicationStatusSave = "patient/medication-logs";
+
 }

@@ -10,6 +10,7 @@ import 'package:aiims_heartcare/data/model/attemptCreateModel.dart';
 import 'package:aiims_heartcare/data/model/attemptModel.dart';
 import 'package:aiims_heartcare/data/model/loginModel.dart';
 import 'package:aiims_heartcare/data/model/medicineModel.dart';
+import 'package:aiims_heartcare/data/model/medicineSaveStatusResponse.dart';
 import 'package:aiims_heartcare/data/model/profileModel.dart';
 import 'package:aiims_heartcare/data/model/request/AttemptSaveRequest.dart';
 import 'package:aiims_heartcare/data/model/request/login_request.dart';
@@ -353,6 +354,28 @@ class HomeRepository {
       Log.v("Exception occurred in HomeRepository.profile: $e");
       Log.v("Stack trace: $stackTrace");
       return MedicineResponse();
+    }
+  }
+
+  Future<MedicineSaveStatusResp> saveMedicineStatus({String? medicineId, String? status}) async {
+    try {
+      final response = await homeProvider.saveMedicineStatus(medicineId: medicineId, status: status);
+
+      if (response != null && response.success) {
+        Log.v("profile Success: ${response.body}");
+        MedicineSaveStatusResp medicineResp = MedicineSaveStatusResp.fromJson(
+          response.body,
+        );
+
+        return medicineResp;
+      } else {
+        Log.v("profile Failed: ${response?.body}");
+        return MedicineSaveStatusResp();
+      }
+    } catch (e, stackTrace) {
+      Log.v("Exception occurred in HomeRepository.profile: $e");
+      Log.v("Stack trace: $stackTrace");
+      return MedicineSaveStatusResp();
     }
   }
 }

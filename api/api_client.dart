@@ -10,5 +10,6 @@ class ApiClient{
   String attempt = "symptoms/attempts";
   String profile = "patient/profile";
   String dailyLog = "patient/daily-logs";
+  String dailyLogCreate = "patient/daily-logs/create";
 
 }

@@ -199,6 +199,12 @@ class ClinicalOutcome {
   String? lipidProfile;
   String? bloodSugar;
   String? vitalSigns;
+  String? hbalc;
+  String? urea;
+  String? creatinine;
+  String? sodium;
+  String? potassium;
+  String? chloride;
   String? createdAt;
   String? updatedAt;
 
@@ -216,6 +222,12 @@ class ClinicalOutcome {
     this.lipidProfile,
     this.bloodSugar,
     this.vitalSigns,
+    this.hbalc,
+    this.urea,
+    this.creatinine,
+    this.sodium,
+    this.potassium,
+    this.chloride,
     this.createdAt,
     this.updatedAt,
   });
@@ -240,6 +252,12 @@ class ClinicalOutcome {
         lipidProfile: json["lipid_profile"]?.toString(),
         bloodSugar: json["blood_sugar"]?.toString(),
         vitalSigns: json["vital_signs"]?.toString(),
+        hbalc: json["hbalc"],
+        urea: json["urea"],
+        creatinine: json["creatinine"],
+        sodium: json["sodium"],
+        potassium: json["potassium"],
+        chloride: json["chloride"],
         createdAt: json["created_at"]?.toString(),
         updatedAt: json["updated_at"]?.toString(),
       );
@@ -258,6 +276,13 @@ class ClinicalOutcome {
     "lipid_profile": lipidProfile,
     "blood_sugar": bloodSugar,
     "vital_signs": vitalSigns,
+
+    "hbalc": hbalc,
+    "urea": urea,
+    "creatinine": creatinine,
+    "sodium": sodium,
+    "potassium": potassium,
+    "chloride": chloride,
     "created_at": createdAt,
     "updated_at": updatedAt,
   };

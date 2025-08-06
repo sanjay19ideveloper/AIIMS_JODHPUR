@@ -446,7 +446,7 @@ class HomeProvider {
     return null;
   }
 
-  Future<ApiResponse?> getMedicineList() async {
+  Future<ApiResponse?> getMedicineList({int? medicineId}) async {
     try {
       final response = await api!.dio.get(
         ApiConstants.medicine,
@@ -457,6 +457,51 @@ class HomeProvider {
             // ApiConstants.API_KEY: ApiConstants.API_KEY_VALUE
           },
           method: 'GET',
+          contentType: "application/json",
+          responseType: ResponseType.json,
+        ),
+      );
+
+      debugPrint('learning API response status: ${response.statusCode}');
+      debugPrint('learning API response data: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse.success(response);
+      }
+    } on DioError catch (dioError) {
+      debugPrint('DioError occurred: ${dioError.message}');
+      if (dioError.response != null) {
+        debugPrint('DioError response data: ${dioError.response!.data}');
+        debugPrint(
+          'DioError response status: ${dioError.response!.statusCode}',
+        );
+      }
+      return ApiResponse.error(
+        dioError.response?.data ?? {'message': 'Unknown error'},
+      );
+    } catch (e, stackTrace) {
+      debugPrint('Unexpected error: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return ApiResponse.error({'message': 'Unexpected error occurred'});
+    }
+    return null;
+  }
+  
+
+   Future<ApiResponse?> saveMedicineStatus({String? medicineId, String? status}) async {
+    try {
+      final response = await api!.dio.post(
+        ApiConstants.medicationStatusSave,
+        data: {
+          "medication_id": medicineId,
+          "status": status,
+        },
+        options: Options(
+          headers: {
+            "Authorization": "Bearer ${UserSession.userToken}",
+            // ApiConstants.API_KEY: ApiConstants.API_KEY_VALUE
+          },
+          method: 'POST',
           contentType: "application/json",
           responseType: ResponseType.json,
         ),
