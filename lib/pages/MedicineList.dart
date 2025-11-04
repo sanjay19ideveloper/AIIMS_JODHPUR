@@ -44,62 +44,43 @@
 //       _checkForMedicationTimes();
 //     });
 //   }
-// String formatTime(TimeOfDay time) {
-//   // Adds leading zero to single-digit minutes
-//   final hour = time.hour.toString().padLeft(2, '0');
-//   final minute = time.minute.toString().padLeft(2, '0');
-//   return '$hour:$minute';
-// }
 
-//   // void _checkForMedicationTimes() {
-//   //   if (medicineList?.medications == null) return;
+//   String formatTime(TimeOfDay time) {
+//     // Adds leading zero to single-digit minutes
+//     final hour = time.hour.toString().padLeft(2, '0');
+//     final minute = time.minute.toString().padLeft(2, '0');
+//     return '$hour:$minute';
+//   }
 
-//   //   final now = TimeOfDay.now();
-//   //   final currentTime = '${now.hour}:${now.minute}';
-//   //   print('Checking time: $currentTime');
-
-//   //   for (final medication in medicineList!.medications!) {
-//   //     print('medication time ${medication.time}');
-//   //     print('current time  ${currentTime}');
-
-//   //     if (medication.time == currentTime) {
-//   //       _showMedicationReminder(medication);
-//   //     }
-//   //   }
-//   // }
 //   void _checkForMedicationTimes() {
-//   if (medicineList?.medications == null) return;
-
-//   final now = TimeOfDay.now();
-//   // Format current time with leading zeros
-//   final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-//   print('Checking time: $currentTime');
-
-//   for (final medication in medicineList!.medications!) {
-//     // Ensure medication time is properly formatted
-//     final medTime = _formatTimeString(medication.time??'');
-//     print('medication time $medTime');
-//     print('current time  $currentTime');
-
-//     if (medTime == currentTime) {
-//       _showMedicationReminder(medication);
+//     if (medicineList?.medications == null) return;
+//     final now = TimeOfDay.now();
+//     // Format current time with leading zeros
+//     final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+//     print('Checking time: $currentTime');
+//     for (final medication in medicineList!.medications!) {
+//       // Ensure medication time is properly formatted
+//       final medTime = _formatTimeString(medication.time ?? '');
+//       print('medication time $medTime');
+//       print('current time  $currentTime');
+//       if (medTime == currentTime) {
+//         _showMedicationReminder(medication);
+//       }
 //     }
 //   }
-// }
 
-// /// Helper function to standardize time strings to HH:mm format
-// String _formatTimeString(String time) {
-//   try {
-//     final parts = time.split(':');
-//     if (parts.length != 2) return time; // return original if invalid format
-    
-//     final hour = parts[0].padLeft(2, '0');
-//     final minute = parts[1].padLeft(2, '0');
-//     return '$hour:$minute';
-//   } catch (e) {
-//     return time; // return original if parsing fails
+//   /// Helper function to standardize time strings to HH:mm format
+//   String _formatTimeString(String time) {
+//     try {
+//       final parts = time.split(':');
+//       if (parts.length != 2) return time; // return original if invalid format
+//       final hour = parts[0].padLeft(2, '0');
+//       final minute = parts[1].padLeft(2, '0');
+//       return '$hour:$minute';
+//     } catch (e) {
+//       return time; // return original if parsing fails
+//     }
 //   }
-// }
 
 //   void _showMedicationReminder(Medication medication) {
 //     final medicine = medication.medicine;
@@ -111,7 +92,6 @@
 
 //   void _scheduleAllMedicationReminders() {
 //     if (medicineList?.medications == null) return;
-
 //     for (final medication in medicineList!.medications!) {
 //       if (medication.time != null) {
 //         _scheduleMedicationReminder(medication);
@@ -129,7 +109,6 @@
 //   void _scheduleMedicationReminder(Medication medication) {
 //     final medicine = medication.medicine;
 //     final notificationId = _generateNotificationId(medication);
-
 //     _notificationService.scheduleMedicationReminder(
 //       medicineName: medicine?.name ?? 'Unknown Medicine',
 //       dosage: medicine?.dosage ?? '',
@@ -335,7 +314,6 @@
 //         ),
 //       );
 //     }
-
 //     return Padding(
 //       padding: const EdgeInsets.all(20.0),
 //       child: Column(
@@ -365,7 +343,7 @@
 //     );
 //   }
 
-//   Widget _buildMedicineCard(Medication medication) {
+//   Widget _buildMedicineCard(Medication medication ) {
 //     final medicine = medication.medicine;
 //     final isTaken = medication.status ?? false;
 //     final interval = medication.interval ?? 'No interval set';
@@ -385,10 +363,9 @@
 //           gradient: LinearGradient(
 //             begin: Alignment.topLeft,
 //             end: Alignment.bottomRight,
-//             colors:
-//                 isTaken
-//                     ? [Colors.white, Colors.green.withOpacity(0.1)]
-//                     : [Colors.white, Colors.blue.withOpacity(0.1)],
+//             colors: isTaken
+//                 ? [Colors.white, Colors.green.withOpacity(0.1)]
+//                 : [Colors.white, Colors.blue.withOpacity(0.1)],
 //           ),
 //         ),
 //         child: Column(
@@ -396,10 +373,7 @@
 //             Container(
 //               padding: const EdgeInsets.all(16),
 //               decoration: BoxDecoration(
-//                 color:
-//                     isTaken
-//                         ? Colors.green.withOpacity(0.1)
-//                         : Colors.teal.withOpacity(0.1),
+//                 color: isTaken ? Colors.green.withOpacity(0.1) : Colors.teal.withOpacity(0.1),
 //                 borderRadius: const BorderRadius.only(
 //                   topLeft: Radius.circular(16),
 //                   topRight: Radius.circular(16),
@@ -414,10 +388,7 @@
 //                         Container(
 //                           padding: const EdgeInsets.all(10),
 //                           decoration: BoxDecoration(
-//                             color:
-//                                 isTaken
-//                                     ? Colors.green.withOpacity(0.2)
-//                                     : Colors.teal.withOpacity(0.2),
+//                             color: isTaken ? Colors.green.withOpacity(0.2) : Colors.teal.withOpacity(0.2),
 //                             borderRadius: BorderRadius.circular(12),
 //                           ),
 //                           child: Icon(
@@ -461,10 +432,7 @@
 //                       vertical: 6,
 //                     ),
 //                     decoration: BoxDecoration(
-//                       color:
-//                           isTaken
-//                               ? Colors.green.withOpacity(0.2)
-//                               : Colors.orange.withOpacity(0.2),
+//                       color: isTaken ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
 //                       borderRadius: BorderRadius.circular(20),
 //                     ),
 //                     child: Text(
@@ -542,11 +510,17 @@
 //                       InkWell(
 //                         onTap: () {
 //                           setState(() {
-//                             medication.status = !isTaken;
+//                             medication.status = !isTaken; // Toggle the status
+//                             final newStatus = medication.status == true ? 'taken' : 'missed'; // Determine the status string
+//                             final medicineId = medication.id; // Get the medicine ID
+
 //                             if (medication.status == true) {
-//                               _notificationService.cancelNotification(
-//                                 _generateNotificationId(medication),
-//                               );
+//                               _notificationService.cancelNotification(_generateNotificationId(medication));
+//                             }
+
+//                             // Call the saveMedicineStatus function
+//                             if (medication.status == true) {
+//                               saveMedicineStatus(medicineId: medicineId, status: newStatus);
 //                             }
 //                           });
 //                         },
@@ -557,10 +531,7 @@
 //                             vertical: 8,
 //                           ),
 //                           decoration: BoxDecoration(
-//                             color:
-//                                 isTaken
-//                                     ? Colors.orange.withOpacity(0.2)
-//                                     : Colors.green.withOpacity(0.2),
+//                             color: isTaken ? Colors.orange.withOpacity(0.2) : Colors.green.withOpacity(0.2),
 //                             borderRadius: BorderRadius.circular(30),
 //                           ),
 //                           child: Row(
@@ -572,7 +543,7 @@
 //                               ),
 //                               const SizedBox(width: 8),
 //                               Text(
-//                                 isTaken ? 'Undo' : 'Take',
+//                                 isTaken ? 'Undo' : 'Taken',
 //                                 style: TextStyle(
 //                                   color: isTaken ? Colors.orange : Colors.green,
 //                                   fontWeight: FontWeight.bold,
@@ -654,7 +625,7 @@
 //     BlocProvider.of<HomeBloc>(context).add(MedicineEvent());
 //   }
 
-//   void saveMedicineStatus({int? medicineId, String? status}) {
+//   void saveMedicineStatus({String? medicineId, String? status}) {
 //     BlocProvider.of<HomeBloc>(context).add(MedicineStatusSaveEvent(medicineId: medicineId, status: status));
 //   }
 
@@ -677,6 +648,7 @@
 //         break;
 //     }
 //   }
+
 //   void handleMedicineStatusResponse(MedicineStatusSaveState state) {
 //     switch (state.apiState) {
 //       case ApiStatus.LOADING:
@@ -685,9 +657,10 @@
 //       case ApiStatus.SUCCESS:
 //         setState(() {
 //           _isLoading = false;
-//            medicineSaveStatus = state.response;
+//           medicineSaveStatus = state.response;
 //         });
-//         _scheduleAllMedicationReminders();
+//         // Re-fetch or update the local list to reflect the status change from the server
+//         fetchMedicineList(); 
 //         break;
 //       case ApiStatus.ERROR:
 //         setState(() => _isLoading = false);
@@ -723,7 +696,18 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
   MedicineSaveStatusResp? medicineSaveStatus;
   final NotificationService _notificationService = NotificationService();
   Timer? _timeCheckTimer;
+  String? takenStatus ;
   final Random _random = Random();
+
+  // Map intervals to their corresponding times
+  final Map<String, List<String>> _intervalTimes = {
+    'od': ['08:00'], // Once daily at 8am
+    'bd': ['08:00', '20:00'], // Twice daily at 8am and 8pm
+    'tds': ['08:00', '14:00', '20:00'], // Three times daily at 8am, 2pm, 8pm
+    'qid': ['08:00', '14:00', '15:00', '20:00'], // Four times daily at 8am, 2pm, 3pm, 8pm
+    'sos': ['17:00'], // As needed at 5pm
+    'hs': ['22:00'], // At bedtime at 10pm
+  };
 
   @override
   void initState() {
@@ -745,7 +729,6 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
   }
 
   String formatTime(TimeOfDay time) {
-    // Adds leading zero to single-digit minutes
     final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
@@ -753,68 +736,102 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
 
   void _checkForMedicationTimes() {
     if (medicineList?.medications == null) return;
+    
     final now = TimeOfDay.now();
-    // Format current time with leading zeros
     final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     print('Checking time: $currentTime');
+    
     for (final medication in medicineList!.medications!) {
-      // Ensure medication time is properly formatted
-      final medTime = _formatTimeString(medication.time ?? '');
-      print('medication time $medTime');
-      print('current time  $currentTime');
-      if (medTime == currentTime) {
+      if (medication.status == true) continue; // Skip if already taken
+      
+      final interval = medication.interval ?? '';
+      if (interval.isEmpty) continue;
+      
+      // Get all times for this medication's interval
+      final times = _getTimesForInterval(interval);
+      
+      // Check if current time matches any of the scheduled times
+      if (times.contains(currentTime)) {
         _showMedicationReminder(medication);
       }
     }
   }
 
-  /// Helper function to standardize time strings to HH:mm format
-  String _formatTimeString(String time) {
-    try {
-      final parts = time.split(':');
-      if (parts.length != 2) return time; // return original if invalid format
-      final hour = parts[0].padLeft(2, '0');
-      final minute = parts[1].padLeft(2, '0');
-      return '$hour:$minute';
-    } catch (e) {
-      return time; // return original if parsing fails
+  List<String> _getTimesForInterval(String interval) {
+    // Handle combined intervals like "BD, TDS" or "BD, QID"
+    if (interval.contains(',')) {
+      final intervals = interval.split(',').map((e) => e.trim()).toList();
+      final allTimes = <String>[];
+      
+      for (final i in intervals) {
+        if (_intervalTimes.containsKey(i)) {
+          allTimes.addAll(_intervalTimes[i]!);
+        }
+      }
+      
+      // Remove duplicates and sort
+      return allTimes.toSet().toList()..sort();
     }
+    
+    // Single interval
+    return _intervalTimes[interval] ?? [];
   }
 
   void _showMedicationReminder(Medication medication) {
     final medicine = medication.medicine;
     _notificationService.showInstantNotification(
       title: 'Time to take your medication',
-      body: '${medicine?.name ?? 'Medicine'} (${medicine?.dosage ?? ''})',
+      body: '${medicine?.name ?? 'Medicine'} (${medicine?.dosage ?? ''}) - ${medication.interval}',
     );
   }
 
   void _scheduleAllMedicationReminders() {
     if (medicineList?.medications == null) return;
+    
     for (final medication in medicineList!.medications!) {
-      if (medication.time != null) {
-        _scheduleMedicationReminder(medication);
-      }
+      if (medication.status == true) continue; // Skip if already taken
+      
+      final interval = medication.interval ?? '';
+      if (interval.isEmpty) continue;
+      
+      _scheduleMedicationRemindersForInterval(medication, interval);
     }
   }
 
-  // Generate a unique notification ID based on medicine name and time
-  int _generateNotificationId(Medication medication) {
-    final medicine = medication.medicine;
-    final time = medication.time ?? '';
-    return (medicine?.name?.hashCode ?? 0) + time.hashCode;
+  void _scheduleMedicationRemindersForInterval(Medication medication, String interval) {
+    final times = _getTimesForInterval(interval);
+    
+    for (final time in times) {
+      _scheduleSingleMedicationReminder(medication, time);
+    }
   }
 
-  void _scheduleMedicationReminder(Medication medication) {
+  void _scheduleSingleMedicationReminder(Medication medication, String time) {
     final medicine = medication.medicine;
-    final notificationId = _generateNotificationId(medication);
+    final notificationId = _generateNotificationId(medication, time);
+    
+    // Parse the time string (format: HH:mm)
+    final parts = time.split(':');
+    if (parts.length != 2) return;
+    
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return;
+    
+    final scheduledTime = TimeOfDay(hour: hour, minute: minute);
+    
     _notificationService.scheduleMedicationReminder(
       medicineName: medicine?.name ?? 'Unknown Medicine',
       dosage: medicine?.dosage ?? '',
-      time: medication.time!,
+      time: scheduledTime.toString(),
       notificationId: notificationId,
       context: context,
     );
+  }
+
+  int _generateNotificationId(Medication medication, String time) {
+    final medicine = medication.medicine;
+    return (medicine?.name?.hashCode ?? 0) + time.hashCode;
   }
 
   @override
@@ -1042,15 +1059,18 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
     );
   }
 
-  Widget _buildMedicineCard(Medication medication ) {
+  Widget _buildMedicineCard(Medication medication) {
     final medicine = medication.medicine;
-    final isTaken = medication.status ?? false;
+    final isTaken = takenStatus == 'taken';
     final interval = medication.interval ?? 'No interval set';
     final timing = medication.medicationTiming ?? 'No timing specified';
     final notes = medication.notes ?? '';
     final startDate = _formatDate(medication.startedAt);
     final endDate = _formatDate(medication.endedAt);
-    final time = medication.time ?? 'Not set';
+    
+    // Get times for this medication's interval
+    final times = _getTimesForInterval(interval);
+    final timeDisplay = times.isNotEmpty ? times.join(', ') : 'Not set';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -1125,24 +1145,24 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isTaken ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      isTaken ? 'TAKEN' : 'PENDING',
-                      style: TextStyle(
-                        color: isTaken ? Colors.green : Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 12,
+                  //     vertical: 6,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: isTaken ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+                  //     borderRadius: BorderRadius.circular(20),
+                  //   ),
+                  //   child: Text(
+                  //     isTaken ? 'TAKEN' : 'PENDING',
+                  //     style: TextStyle(
+                  //       color: isTaken ? Colors.green : Colors.orange,
+                  //       fontWeight: FontWeight.bold,
+                  //       fontSize: 12,
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -1150,9 +1170,9 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _buildInfoRow(Icons.access_time, time, Colors.blue),
+                  _buildInfoRow(Icons.access_time, timeDisplay, Colors.blue),
                   const SizedBox(height: 12),
-                  _buildInfoRow(Icons.repeat, 'Every $interval', Colors.purple),
+                  _buildInfoRow(Icons.repeat, 'Interval: $interval', Colors.purple),
                   const SizedBox(height: 12),
                   _buildInfoRow(Icons.restaurant, timing, Colors.orange),
                   const SizedBox(height: 12),
@@ -1169,58 +1189,58 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (!isTaken && time != 'Not set')
-                        InkWell(
-                          onTap: () {
-                            _scheduleMedicationReminder(medication);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Reminder set for $time')),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(30),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.notifications_active,
-                                  color: Colors.blue,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Set Reminder',
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      // if (!isTaken && times.isNotEmpty)
+                      //   InkWell(
+                      //     onTap: () {
+                      //       _scheduleMedicationRemindersForInterval(medication, interval);
+                      //       ScaffoldMessenger.of(context).showSnackBar(
+                      //         SnackBar(content: Text('Reminders set for $interval at $timeDisplay')),
+                      //       );
+                      //     },
+                      //     borderRadius: BorderRadius.circular(30),
+                      //     child: Container(
+                      //       padding: const EdgeInsets.symmetric(
+                      //         horizontal: 16,
+                      //         vertical: 8,
+                      //       ),
+                      //       decoration: BoxDecoration(
+                      //         color: Colors.blue.withOpacity(0.2),
+                      //         borderRadius: BorderRadius.circular(30),
+                      //       ),
+                      //       child: const Row(
+                      //         children: [
+                      //           Icon(
+                      //             Icons.notifications_active,
+                      //             color: Colors.blue,
+                      //             size: 20,
+                      //           ),
+                      //           SizedBox(width: 8),
+                      //           Text(
+                      //             'Set Reminders',
+                      //             style: TextStyle(
+                      //               color: Colors.blue,
+                      //               fontWeight: FontWeight.bold,
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
                       InkWell(
                         onTap: () {
                           setState(() {
-                            medication.status = !isTaken; // Toggle the status
-                            final newStatus = medication.status == true ? 'taken' : 'missed'; // Determine the status string
-                            final medicineId = medication.id; // Get the medicine ID
+                          
+                            final newStatus = 'taken';
+                            final medicineId = medication.id;
 
-                            if (medication.status == true) {
-                              _notificationService.cancelNotification(_generateNotificationId(medication));
-                            }
-
-                            // Call the saveMedicineStatus function
-                            if (medication.status == true) {
+                         
+                              // Cancel all scheduled notifications for this medication
+                              for (final time in times) {
+                                _notificationService.cancelNotification(
+                                  _generateNotificationId(medication, time));
+                              }
                               saveMedicineStatus(medicineId: medicineId, status: newStatus);
-                            }
+                           
                           });
                         },
                         borderRadius: BorderRadius.circular(30),
@@ -1230,21 +1250,26 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: isTaken ? Colors.orange.withOpacity(0.2) : Colors.green.withOpacity(0.2),
+                            color: Colors.green.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Row(
                             children: [
+                              isTaken ?  Icon(
+                             Icons.check_circle,
+                                color: isTaken ? Colors.blue: Colors.green,
+                                size: 20,
+                              ) : 
                               Icon(
-                                isTaken ? Icons.undo : Icons.check_circle,
-                                color: isTaken ? Colors.orange : Colors.green,
+                             Icons.add,
+                                color: isTaken ? Colors.blue: Colors.green,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                isTaken ? 'Undo' : 'Taken',
+                              isTaken ? 'Medication already taken today' : 'Have you taken your medicine?',
                                 style: TextStyle(
-                                  color: isTaken ? Colors.orange : Colors.green,
+                                  color:isTaken ? Colors.blue : Colors.green,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -1357,9 +1382,9 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
         setState(() {
           _isLoading = false;
           medicineSaveStatus = state.response;
+          takenStatus = state.response?.medicationLog?.status;
         });
-        // Re-fetch or update the local list to reflect the status change from the server
-        fetchMedicineList(); 
+        fetchMedicineList();
         break;
       case ApiStatus.ERROR:
         setState(() => _isLoading = false);

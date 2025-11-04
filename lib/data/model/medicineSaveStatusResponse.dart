@@ -11,23 +11,27 @@ String medicineSaveStatusRespToJson(MedicineSaveStatusResp data) => json.encode(
 class MedicineSaveStatusResp {
     final bool? status;
     final String? message;
+    final String? error;
     final MedicationLog? medicationLog;
 
     MedicineSaveStatusResp({
         this.status,
         this.message,
         this.medicationLog,
+        this.error
     });
 
     factory MedicineSaveStatusResp.fromJson(Map<String, dynamic> json) => MedicineSaveStatusResp(
         status: json["status"],
         message: json["message"],
+        error: json["error"],
         medicationLog: json["medicationLog"] == null ? null : MedicationLog.fromJson(json["medicationLog"]),
     );
 
     Map<String, dynamic> toJson() => {
         "status": status,
         "message": message,
+        "error":error,
         "medicationLog": medicationLog?.toJson(),
     };
 }
