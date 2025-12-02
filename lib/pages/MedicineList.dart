@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element
+// ignore_for_file: unused_element, avoid_print
 
 import 'package:aiims_heartcare/pages/NotificationService/GlobalServiceProvider.dart';
 import 'package:flutter/material.dart';
@@ -550,7 +550,6 @@ Widget _buildDebugInfoRow(String label, String value) {
   }
 
   List<String> _getTimesForInterval(String interval) {
-    // Use the global reminder service
     return MedicationReminderManager().reminderService.getTimesForInterval(interval);
   }
 

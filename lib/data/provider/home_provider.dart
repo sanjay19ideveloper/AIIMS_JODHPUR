@@ -5,7 +5,6 @@ import 'package:aiims_heartcare/data/api/api_response.dart';
 import 'package:aiims_heartcare/data/api/api_service.dart';
 import 'package:aiims_heartcare/data/model/request/AttemptSaveRequest.dart';
 import 'package:aiims_heartcare/data/model/request/login_request.dart';
-import 'package:aiims_heartcare/utils/log.dart';
 import 'package:aiims_heartcare/utils/user_sessions.dart';
 
 import 'package:dio/dio.dart';

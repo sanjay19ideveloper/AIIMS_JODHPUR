@@ -1,8 +1,9 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:aiims_heartcare/blocs/bloc_manager.dart';
 import 'package:aiims_heartcare/blocs/home_bloc.dart';
 import 'package:aiims_heartcare/data/api/api_service.dart';
 import 'package:aiims_heartcare/l10n/app_localizations.dart';
-import 'package:aiims_heartcare/local/preference.dart';
 import 'package:aiims_heartcare/utils/loading.dart';
 import 'package:aiims_heartcare/utils/log.dart';
 import 'package:flutter/material.dart';
