@@ -3,6 +3,9 @@
         android:label="Hriday sathi (हृदय साथी)"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <service
+    android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
+    android:foregroundServiceType="shortService" />
          <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="heartcare_notifications" />

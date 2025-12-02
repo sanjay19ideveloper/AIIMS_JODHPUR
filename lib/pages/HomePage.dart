@@ -3,6 +3,7 @@ import 'package:aiims_heartcare/data/api/api_service.dart';
 import 'package:aiims_heartcare/data/provider/localProvider.dart';
 import 'package:aiims_heartcare/pages/LabReportPage.dart';
 import 'package:aiims_heartcare/pages/LoginPage.dart';
+import 'package:aiims_heartcare/pages/NotificationPermission.dart';
 import 'package:aiims_heartcare/pages/PrivacyPolicy.dart';
 import 'package:aiims_heartcare/pages/SymtomsFaq.dart';
 import 'package:aiims_heartcare/pages/Terms&Condition.dart';
@@ -58,6 +59,7 @@ class _HeartCareDashboardState extends State<HeartCareDashboard> {
   @override
   void initState() {
     super.initState();
+    requestNotificationPermission(); 
     fetchWeightList();
     fetchMedicineList();
   }
@@ -720,15 +722,7 @@ class HomePage extends StatelessWidget {
               );
             },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: Colors.white,
-              ),
-              onPressed: () {},
-            ),
-          ],
+         
         ),
         SliverToBoxAdapter(
           child: Padding(

@@ -1,11 +1,13 @@
+// main.dart - Update your main.dart
 import 'package:aiims_heartcare/blocs/home_bloc.dart';
 import 'package:aiims_heartcare/data/api/api_service.dart';
 import 'package:aiims_heartcare/data/provider/localProvider.dart';
 import 'package:aiims_heartcare/l10n/app_localizations.dart';
 import 'package:aiims_heartcare/local/preference.dart';
+import 'package:aiims_heartcare/pages/NotificationPermission.dart';
+import 'package:aiims_heartcare/pages/NotificationService/NotificationService.dart';
 import 'package:aiims_heartcare/pages/SplashScreen.dart';
 import 'package:aiims_heartcare/service/NotificationsService.dart';
-import 'package:aiims_heartcare/testpage.dart';
 import 'package:aiims_heartcare/utils/dependency_injection.dart';
 import 'package:aiims_heartcare/utils/user_sessions.dart';
 import 'package:flutter/material.dart';
@@ -18,15 +20,15 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UserSession.init();
-  
 
   await initHive();
   await Preference.initialize();
   setupDependencyInjections();
 
   final NotificationService notificationService = NotificationService();
-  await notificationService.initialize();
-
+  await notificationService.initialize(); 
+  await requestNotificationPermission(); 
+  
   runApp(
     MultiProvider(
       providers: [
@@ -44,6 +46,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
+
     return Consumer<LocaleProvider>(
       builder: (context, provider, child) {
         return MultiBlocProvider(
@@ -54,9 +57,14 @@ class MyApp extends StatelessWidget {
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
+            title: 'Hriday Sathi',
+            // Use the global navigator key
+            navigatorKey: MedicationReminderService.navigatorKey,
             locale: localeProvider.locale,
-            supportedLocales: const [Locale('en', ''), Locale('hi', '')],
+            supportedLocales: const [
+              Locale('en', ''),
+              Locale('hi', ''),
+            ],
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -67,9 +75,7 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.green,
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
-            home: 
-            // NotificationTestPage()
-            SplashScreen(),
+            home: SplashScreen(),
           ),
         );
       },
