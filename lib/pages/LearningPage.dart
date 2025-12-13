@@ -54,54 +54,102 @@ class _MyLearningPageState extends State<MyLearningPage> {
           ),
           body: ScreenWithLoader(
             isLoading: _isLoading,
-            body:
-                _isLoading
-                    ? _buildShimmerLoading()
-                    : contentList.isNotEmpty
+            body: _isLoading
+                ? _buildShimmerLoading()
+                : contentList.isNotEmpty
                     ? ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: contentList.length,
-                      itemBuilder: (context, index) {
-                        final content = contentList[index];
-                        return ContentCard(
-                          title: content.name ?? '',
-                          description:
-                              content.description ?? content.tagline ?? '',
-                          imageUrl: content.imageUrl ?? '',
-                          slug: content.slug ?? '',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => LearningDetailsPage(
-                                      slug: content.slug ?? '',
-                                      category: content.name,
-                                    ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    )
-                    : Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.menu_book_outlined,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'No learning content available.',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
+                        padding: const EdgeInsets.all(16),
+                        itemCount: contentList.length,
+                        itemBuilder: (context, index) {
+                          final content = contentList[index];
+                          return ContentCard(
+                            title: content.name ?? '',
+                            description:
+                                content.description ?? content.tagline ?? '',
+                            imageUrl: content.imageUrl ?? '',
+                            slug: content.slug ?? '',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LearningDetailsPage(
+                                    slug: content.slug ?? '',
+                                    category: content.name,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      )
+                    : _buildEmptyState(), // Changed from showing text to custom empty state
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.menu_book_outlined,
+                size: 64,
+                color: Colors.grey[400],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'No Learning Content',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Learning content will appear here once available',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                fetchLearningData();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D3B3F),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.refresh, size: 20),
+                  SizedBox(width: 8),
+                  Text('Refresh'),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -143,74 +191,73 @@ class _MyLearningPageState extends State<MyLearningPage> {
         highlightColor: Colors.grey[100]!,
         child: ListView.builder(
           itemCount: 5,
-          itemBuilder:
-              (_, __) => Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Container(
-                  height: 140,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 120,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 150,
-                                height: 20,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                width: double.infinity,
-                                height: 10,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(height: 6),
-                              Container(
-                                width: double.infinity,
-                                height: 10,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(height: 6),
-                              Container(
-                                width: 100,
-                                height: 10,
-                                color: Colors.white,
-                              ),
-                              const Spacer(),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Container(
-                                  width: 120,
-                                  height: 30,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+          itemBuilder: (_, __) => Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Container(
+              height: 140,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
               ),
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 120,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 150,
+                            height: 20,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: double.infinity,
+                            height: 10,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            width: double.infinity,
+                            height: 10,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            width: 100,
+                            height: 10,
+                            color: Colors.white,
+                          ),
+                          const Spacer(),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              width: 120,
+                              height: 30,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -245,8 +292,7 @@ class ContentCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child:
-            isSmallScreen ? _buildVerticalLayout() : _buildHorizontalLayout(),
+        child: isSmallScreen ? _buildVerticalLayout() : _buildHorizontalLayout(),
       ),
     );
   }
@@ -338,12 +384,12 @@ class ContentCard extends StatelessWidget {
   Widget _buildImage() {
     return imageUrl.isNotEmpty
         ? Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildDefaultImage();
-          },
-        )
+            imageUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildDefaultImage();
+            },
+          )
         : _buildDefaultImage();
   }
 

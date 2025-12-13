@@ -1,3 +1,4 @@
+
 // ignore_for_file: unused_element
 
 import 'dart:developer';
@@ -108,6 +109,10 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
   }
 
   Widget _buildContentCard(Datum item) {
+    // Check if content is available
+    final hasContent = item.content != null && item.content!.isNotEmpty;
+    final hasVideo = item.videoUrl != null && item.videoUrl.toString().isNotEmpty;
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 20),
       elevation: 2,
@@ -178,7 +183,7 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
 
                 const SizedBox(height: 16),
 
-                // Status and date info
+                // Status and date info (commented out)
                 // Row(
                 //   children: [
                 //     _buildInfoChip(
@@ -197,30 +202,23 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
                 //   ],
                 // ),
 
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 8),
+                // Only show divider if there's content after the title section
+                if (hasContent || hasVideo) const SizedBox(height: 16),
+                if (hasContent || hasVideo) const Divider(),
+                if (hasContent || hasVideo) const SizedBox(height: 8),
 
-                // Content
-                if (item.content != null && item.content!.isNotEmpty)
-                  _buildFormattedContent(item.content!)
-                else
-                  const Text(
-                    'No content available',
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      color: Colors.grey,
-                    ),
-                  ),
+                // Content - Only show if available
+                if (hasContent) _buildFormattedContent(item.content!),
 
                 // Video section if available
-                if (item.videoUrl != null && item.videoUrl.toString().isNotEmpty)
+                if (hasVideo)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 16),
+                      // Add space before video section only if there's content above
+                      if (hasContent) const SizedBox(height: 16),
+                      if (hasContent) const Divider(),
+                      if (hasContent) const SizedBox(height: 16),
                       Row(
                         children: [
                           const Icon(
@@ -256,7 +254,8 @@ class _LearningDetailsPageState extends State<LearningDetailsPage> {
                     ],
                   ),
 
-                const SizedBox(height: 24),
+                // Only show bottom padding if there's content or video
+                if (hasContent || hasVideo) const SizedBox(height: 24),
               ],
             ),
           ),
