@@ -266,6 +266,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 'Economic Status',
                 _capitalizeFirstLetter(user?.economicStatus ?? ''),
               ),
+              if (user?.dietaryPattern != null)
+              _buildInfoRow(
+                Icons.dinner_dining,
+                'Dietary Pattern',
+                _capitalizeFirstLetter(user?.dietaryPattern ?? ''),
+              ),
           ],
         ),
       ),
