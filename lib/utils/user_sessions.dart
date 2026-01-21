@@ -7,6 +7,9 @@ class UserSession {
   static String? email;
   static String? language;
   static String? mobileNo;
+    static String? age;
+      static String? dob;
+
 
   static clearSession() {
     userName = null;
@@ -21,6 +24,8 @@ static Future<void> init() async {
     userToken = prefs.getString('userToken');
     email = prefs.getString('email');
     userName = prefs.getString('userName');
+     age = prefs.getString('age');
+     dob = prefs.getString('dob');
   }
 static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
@@ -37,6 +42,8 @@ static Future<void> clear() async {
     email = Preference.getString(Preference.USER_EMAIL);
     userName = Preference.getString(Preference.FIRST_NAME);
     mobileNo = Preference.getString(Preference.PHONE);
+    age = Preference.getString(Preference.AGE);
+    dob = Preference.getString(Preference.DOB);
 
     language = Preference.getString(Preference.LANGUAGE);
   }

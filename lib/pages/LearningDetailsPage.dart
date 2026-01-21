@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -52,7 +51,6 @@ class _LearningDetailsPageState extends State<LearningDetailsPage>
               : contentList.isEmpty
                   ? _emptyState()
                   : ListView.builder(
-                    
                       padding: const EdgeInsets.all(14),
                       itemCount: contentList.length,
                       itemBuilder: (_, index) =>
@@ -94,7 +92,7 @@ class _LearningDetailsPageState extends State<LearningDetailsPage>
                   imageUrl: item.imageUrl!,
                   height: 180,
                   width: double.infinity,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
               ),
             Padding(
@@ -218,7 +216,9 @@ class _LearningDetailsPageState extends State<LearningDetailsPage>
 
   void _toggle(int index) {
     if (index >= _expandedList.length) return;
-    setState(() => _expandedList[index] = !_expandedList[index]);
+    setState(() {
+      _expandedList[index] = !_expandedList[index];
+    });
   }
 
   void fetchLearningData({required String slug}) {
@@ -228,10 +228,17 @@ class _LearningDetailsPageState extends State<LearningDetailsPage>
 
   void handleLearningResponse(LearningContentState state) {
     if (state.apiState == ApiStatus.SUCCESS) {
+      final data = state.response?.data ?? [];
+
       setState(() {
         _isLoading = false;
-        contentList = state.response?.data ?? [];
-        _expandedList = List<bool>.filled(contentList.length, false);
+        contentList = data;
+
+        // 👇 FIRST ACCORDION OPEN BY DEFAULT
+        _expandedList = List<bool>.generate(
+          contentList.length,
+          (index) => index == 0,
+        );
       });
     } else if (state.apiState == ApiStatus.LOADING) {
       setState(() => _isLoading = true);

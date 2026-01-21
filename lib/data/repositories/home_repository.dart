@@ -16,6 +16,7 @@ import 'package:aiims_heartcare/data/model/request/AttemptSaveRequest.dart';
 import 'package:aiims_heartcare/data/model/request/login_request.dart';
 import 'package:aiims_heartcare/data/model/weightListResp.dart';
 import 'package:aiims_heartcare/data/provider/home_provider.dart';
+import 'package:aiims_heartcare/local/preference.dart';
 import 'package:aiims_heartcare/utils/log.dart' show Log;
 import 'package:aiims_heartcare/utils/user_sessions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,13 +37,24 @@ class HomeRepository {
         UserSession.userToken = user.token!;
         UserSession.email = user.user?.email;
         UserSession.userName = user.user?.name;
+        UserSession.age = user.user?.age;
+        UserSession.dob = user.user?.dob;
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userToken', user.token!); // Save token
         await prefs.setString('email', user.user?.email ?? '');
         await prefs.setString('userName', user.user?.name ?? '');
-        await prefs.setString('daily_liquid_intake_limit', user.user?.daily_liquid_intake_limit ?? '');
-        await prefs.setString('liquid_intake_limit_measurement', user.user?.liquidIntakeLimitMeasurement ?? '');
+        await prefs.setString('age', user.user?.age ?? '');
+        await prefs.setString('dob', user.user?.dob ?? '');
+        await prefs.setString(
+          'daily_liquid_intake_limit',
+          user.user?.daily_liquid_intake_limit ?? '',
+        );
+        await prefs.setString(
+          'liquid_intake_limit_measurement',
+          user.user?.liquidIntakeLimitMeasurement ?? '',
+        );
         return user;
       } else {
         Log.v("Login Failed: ${response?.body}");
@@ -299,7 +311,9 @@ class HomeRepository {
 
       if (response != null && response.success) {
         Log.v("profile Success: ${response.body}");
-        DailyLogSaveResponse dailyLogResponse = DailyLogSaveResponse.fromJson(response.body);
+        DailyLogSaveResponse dailyLogResponse = DailyLogSaveResponse.fromJson(
+          response.body,
+        );
 
         return dailyLogResponse;
       } else {
@@ -357,9 +371,15 @@ class HomeRepository {
     }
   }
 
-  Future<MedicineSaveStatusResp> saveMedicineStatus({String? medicineId, String? status}) async {
+  Future<MedicineSaveStatusResp> saveMedicineStatus({
+    String? medicineId,
+    String? status,
+  }) async {
     try {
-      final response = await homeProvider.saveMedicineStatus(medicineId: medicineId, status: status);
+      final response = await homeProvider.saveMedicineStatus(
+        medicineId: medicineId,
+        status: status,
+      );
 
       if (response != null && response.success) {
         Log.v("profile Success: ${response.body}");

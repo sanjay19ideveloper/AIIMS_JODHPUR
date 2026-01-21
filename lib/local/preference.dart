@@ -21,8 +21,9 @@ class Preference {
   static const USER_PROFILE = "USER_PROFILE";
   static const INTAKE_LIMIT = "daily_liquid_intake_limit";
   static const INTAKE_LIMIT_MEASUREMENT = "liquid_intake_limit_measurement";
-  static const USER_PROFILE_IMAGE = "USER_PROFILE_IMAGE"; 
-
+  static const USER_PROFILE_IMAGE = "USER_PROFILE_IMAGE";
+  static const DOB = "DOB";
+  static const AGE = "AGE";
 
   // Singleton instance
   static final Preference _instance = Preference._internal();
@@ -137,6 +138,5 @@ class Preference {
     await prefs.remove('userToken');
     await prefs.remove('email');
     await prefs.remove('userName');
- 
   }
 }

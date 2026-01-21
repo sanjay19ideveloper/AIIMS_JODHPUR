@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+/* ======================= Medicine Response ======================= */
+
 class MedicineResponse {
   bool? status;
   String? message;
@@ -28,7 +30,7 @@ class MedicineResponse {
                 json["medications"].map((x) => Medication.fromJson(x))),
         error: json["error"] == null
             ? []
-            : List<dynamic>.from(json["error"].map((x) => x)),
+            : List<dynamic>.from(json["error"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -37,16 +39,24 @@ class MedicineResponse {
         "medications": medications == null
             ? []
             : List<dynamic>.from(medications!.map((x) => x.toJson())),
-        "error": error == null ? [] : List<dynamic>.from(error!.map((x) => x)),
+        "error": error == null ? [] : List<dynamic>.from(error!),
       };
 }
+
+/* ======================= Medication ======================= */
 
 class Medication {
   String? id;
   String? userId;
   String? medicineId;
   String? interval;
+
+  /// Old single time (optional / backward compatible)
   String? time;
+
+  /// ✅ New timing list
+  List<Timing>? timing;
+
   List<String>? weekDays;
   dynamic monthDates;
   dynamic yearDates;
@@ -67,6 +77,7 @@ class Medication {
     this.medicineId,
     this.interval,
     this.time,
+    this.timing,
     this.weekDays,
     this.monthDates,
     this.yearDates,
@@ -92,10 +103,17 @@ class Medication {
         userId: json["user_id"],
         medicineId: json["medicine_id"],
         interval: json["interval"],
-        time: json["time"], // ✅ remains null-safe
+        time: json["time"],
+
+        /// ✅ Parse timing array
+        timing: json["timing"] == null
+            ? []
+            : List<Timing>.from(
+                json["timing"].map((x) => Timing.fromJson(x))),
+
         weekDays: json["week_days"] == null
             ? []
-            : List<String>.from(json["week_days"].map((x) => x)),
+            : List<String>.from(json["week_days"]),
         monthDates: json["month_dates"],
         yearDates: json["year_dates"],
         startedAt: json["started_at"],
@@ -118,8 +136,14 @@ class Medication {
         "medicine_id": medicineId,
         "interval": interval,
         "time": time,
+
+        /// ✅ Serialize timing array
+        "timing": timing == null
+            ? []
+            : List<dynamic>.from(timing!.map((x) => x.toJson())),
+
         "week_days":
-            weekDays == null ? [] : List<dynamic>.from(weekDays!.map((x) => x)),
+            weekDays == null ? [] : List<dynamic>.from(weekDays!),
         "month_dates": monthDates,
         "year_dates": yearDates,
         "started_at": startedAt,
@@ -134,6 +158,24 @@ class Medication {
         "medicine": medicine?.toJson(),
       };
 }
+
+/* ======================= Timing ======================= */
+
+class Timing {
+  String? time;
+
+  Timing({this.time});
+
+  factory Timing.fromJson(Map<String, dynamic> json) => Timing(
+        time: json["time"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "time": time,
+      };
+}
+
+/* ======================= Medicine ======================= */
 
 class Medicine {
   String? id;
